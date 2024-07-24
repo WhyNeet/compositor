@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
-    "biome:check": "biome check --apply ."
+    "biome:check": "biome check --apply .",
+    "pkg:build": "pnpm -r run build"
   },
   "keywords": [],
   "author": "WhyNeet",
@@ -19,11 +20,7 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-    "**/*.{js,ts,tsx}": [
-      "biome check --apply"
-    ],
-    "**/*": [
-      "biome check --apply"
-    ]
+    "**/*.{js,ts,tsx}": ["biome check --apply"],
+    "**/*": ["biome check --apply"]
   }
 }
