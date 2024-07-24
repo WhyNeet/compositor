@@ -1,3 +1,4 @@
 export interface Ctor {
-  new (...args: unknown[]): unknown;
+  // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
+  new (...args: any[]): unknown;
 }
