@@ -3,16 +3,16 @@ import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
 import { Scope } from "./bean-scope";
 
-export class BeanDefinition {
+export class BeanDefinition<T extends Ctor> {
   private _token: InjectionToken;
-  private _class: Ctor | null;
-  private _factory: () => unknown;
+  private _class: T | null;
+  private _factory: () => InstanceType<T>;
   private _dependencies: InjectionToken[];
   private _lazy: boolean;
   private _scope: Scope;
 
-  public static class(token: InjectionToken, ctor: Ctor) {
-    const definition = new BeanDefinition();
+  public static class<T extends Ctor>(token: InjectionToken, ctor: T) {
+    const definition = new BeanDefinition<T>();
 
     definition._token = token;
     definition._class = ctor;
@@ -22,8 +22,11 @@ export class BeanDefinition {
     return definition;
   }
 
-  public static factory(token: InjectionToken, factory: () => unknown) {
-    const definition = new BeanDefinition();
+  public static factory<T extends Ctor>(
+    token: InjectionToken,
+    factory: () => InstanceType<T>,
+  ) {
+    const definition = new BeanDefinition<T>();
 
     definition._token = token;
     definition._factory = factory;
