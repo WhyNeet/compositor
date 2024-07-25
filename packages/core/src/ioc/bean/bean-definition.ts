@@ -1,6 +1,7 @@
 import { METADATA_KEY } from "../constants";
 import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
+import { AnyBean } from "./bean";
 import { Scope } from "./bean-scope";
 
 export class BeanDefinition<T extends Ctor> {
@@ -8,6 +9,7 @@ export class BeanDefinition<T extends Ctor> {
   private _class: T | null;
   private _factory: () => InstanceType<T>;
   private _dependencies: InjectionToken[];
+  private _resolvedDependencies: AnyBean[];
   private _lazy: boolean;
   private _scope: Scope;
 
@@ -82,4 +84,15 @@ export class BeanDefinition<T extends Ctor> {
   public getDependencies() {
     return this._dependencies ?? [];
   }
+
+  public setResolvedDependencies(beans: AnyBean[]) {
+    this._resolvedDependencies = beans;
+  }
+
+  public getResolvedDependencies() {
+    return this._resolvedDependencies;
+  }
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: suppress ts error
+export type AnyBeanDefinition = BeanDefinition<any>;

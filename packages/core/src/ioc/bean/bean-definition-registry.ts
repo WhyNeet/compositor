@@ -1,14 +1,14 @@
 import { InjectionToken } from "../injection-token";
-import { BeanDefinition } from "./bean-definition";
+import { AnyBeanDefinition, BeanDefinition } from "./bean-definition";
 
 export class BeanDefinitionRegistry {
-  private _registry: Map<InjectionToken, BeanDefinition>;
+  private _registry: Map<InjectionToken, AnyBeanDefinition>;
 
   constructor() {
     this._registry = new Map();
   }
 
-  public put(definition: BeanDefinition) {
+  public put(definition: AnyBeanDefinition) {
     this._registry.set(definition.getToken(), definition);
   }
 
