@@ -1,5 +1,4 @@
 import { METADATA_KEY } from "../constants";
-import { NoBeanAnnotationError } from "../error/no-bean-annotation";
 import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
 import { Scope } from "./bean-scope";
