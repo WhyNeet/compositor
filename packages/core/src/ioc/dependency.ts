@@ -16,7 +16,7 @@ export class Dependency<T extends Ctor> {
     if (!this._lazy) this.instantiate();
   }
 
-  public getInstance() {
+  public getInstance(): InstanceType<T> {
     if (this._lazy)
       return new Proxy(
         {},
@@ -27,8 +27,9 @@ export class Dependency<T extends Ctor> {
             return Reflect.get(this._instance as Object, prop, recv);
           },
         },
-      );
-    return this._instance;
+      ) as InstanceType<T>;
+    // biome-ignore lint/style/noNonNullAssertion: cannot be null here
+    return this._instance!;
   }
 
   private instantiate() {
