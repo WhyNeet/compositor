@@ -9,7 +9,8 @@ export class BeanDefinition<T extends Ctor> {
   private _class: T | null;
   private _factory: () => InstanceType<T>;
   private _dependencies: InjectionToken[];
-  private _resolvedDependencies: AnyBean[];
+  private _resolvedDependencies: AnyBeanDefinition[];
+  private _beans: AnyBean[];
   private _lazy: boolean;
   private _scope: Scope;
 
@@ -85,12 +86,20 @@ export class BeanDefinition<T extends Ctor> {
     return this._dependencies ?? [];
   }
 
-  public setResolvedDependencies(beans: AnyBean[]) {
+  public setResolvedDependencies(beans: AnyBeanDefinition[]) {
     this._resolvedDependencies = beans;
   }
 
   public getResolvedDependencies() {
     return this._resolvedDependencies;
+  }
+
+  public setBeans(beans: AnyBean[]) {
+    this._beans = beans;
+  }
+
+  public getBeans() {
+    return this._beans;
   }
 }
 

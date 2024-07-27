@@ -19,4 +19,9 @@ export class BeanDefinitionRegistry {
   public getAll() {
     return this._registry.values();
   }
+
+  public getAllMapped() {
+    // create a clone of a map
+    return new Map(this._registry);
+  }
 }

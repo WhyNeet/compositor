@@ -14,7 +14,7 @@ export class Bean<T extends Ctor> {
         // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
         Reflect.construct<any[], InstanceType<T>>(
           definition.getClass(),
-          definition.getResolvedDependencies(),
+          definition.getBeans(),
         ));
 
     if (!this._lazy) this.instantiate();
