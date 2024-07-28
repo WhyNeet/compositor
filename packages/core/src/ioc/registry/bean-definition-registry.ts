@@ -1,5 +1,5 @@
+import { AnyBeanDefinition } from "../bean";
 import { InjectionToken } from "../injection-token";
-import { AnyBeanDefinition, BeanDefinition } from "./bean-definition";
 
 export class BeanDefinitionRegistry {
   private _registry: Map<InjectionToken, AnyBeanDefinition>;

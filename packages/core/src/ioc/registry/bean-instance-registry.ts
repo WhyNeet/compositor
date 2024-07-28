@@ -1,7 +1,7 @@
 import { AnyBeanDefinition, AnyBeanWrapper, BeanWrapper, Scope } from "../bean";
 import { InjectionToken } from "../injection-token";
 
-export class SingletonBeanRegistry {
+export class BeanInstanceRegistry {
   private _registry: Map<InjectionToken, AnyBeanWrapper>;
   private _definitions: Map<InjectionToken, AnyBeanDefinition>;
 

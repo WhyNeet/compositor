@@ -1,12 +1,11 @@
 import { BeanDefinition } from "./bean/bean-definition";
-import { BeanDefinitionRegistry } from "./bean/bean-definition-registry";
 import { InjectionToken } from "./injection-token";
-import { SingletonBeanRegistry } from "./registry";
+import { BeanDefinitionRegistry, BeanInstanceRegistry } from "./registry";
 import { Ctor } from "./types";
 
 export class Container {
   private _beanDefinitionRegistry: BeanDefinitionRegistry;
-  private _singletonBeanRegistry: SingletonBeanRegistry;
+  private _singletonBeanRegistry: BeanInstanceRegistry;
 
   constructor() {
     this._beanDefinitionRegistry = new BeanDefinitionRegistry();
@@ -23,7 +22,7 @@ export class Container {
   }
 
   public bootstrap() {
-    this._singletonBeanRegistry = new SingletonBeanRegistry();
+    this._singletonBeanRegistry = new BeanInstanceRegistry();
     this._singletonBeanRegistry.instantiate(
       this._beanDefinitionRegistry.getAllMapped(),
     );

@@ -1,1 +1,2 @@
-export * from "./singleton-bean-registry";
+export * from "./bean-instance-registry";
+export * from "./bean-definition-registry";
