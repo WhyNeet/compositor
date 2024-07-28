@@ -38,11 +38,15 @@ export class BeanDefinition<T extends Ctor> {
   }
 
   private readMetadata(obj: unknown) {
-    const dependencies: InjectionToken[] = Reflect.getOwnMetadata(
-      METADATA_KEY.IOC_DEPENDENCIES,
+    const dependencies: InjectionToken[] =
+      Reflect.getOwnMetadata(METADATA_KEY.IOC_DEPENDENCIES, obj) ?? [];
+
+    const constructorDependencies: InjectionToken[] = Reflect.getOwnMetadata(
+      METADATA_KEY.IOC_FACTORY_ARGS,
       obj,
     );
-    this._dependencies = dependencies;
+
+    this._dependencies = [...dependencies, ...constructorDependencies];
 
     const lazy: boolean =
       Reflect.getOwnMetadata(METADATA_KEY.IOC_LAZY, obj) ?? false;
