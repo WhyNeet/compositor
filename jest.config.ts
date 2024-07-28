@@ -1,7 +1,7 @@
 import type { Config } from "jest";
 import { pathsToModuleNameMapper } from "ts-jest";
 
-const projects = [
+const projects: Config["projects"] = [
   {
     preset: "ts-jest",
     testEnvironment: "node",
@@ -17,8 +17,15 @@ const projects = [
   },
 ];
 
+const globals: Config["globals"] = {
+  "ts-jest": {
+    tsconfig: "./tsconfig.json",
+  },
+};
+
 const config: Config = {
   projects,
+  globals,
 };
 
 export default config;
