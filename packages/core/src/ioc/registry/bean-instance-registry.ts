@@ -1,4 +1,9 @@
-import { AnyBeanDefinition, AnyBeanWrapper, BeanWrapper, Scope } from "../bean";
+import {
+  AnyBeanDefinition,
+  AnyBeanWrapper,
+  BeanScope,
+  BeanWrapper,
+} from "../bean";
 import { InjectionToken } from "../injection-token";
 
 export class BeanInstanceRegistry {
@@ -31,7 +36,7 @@ export class BeanInstanceRegistry {
 
   private instantiateBeans() {
     for (const [token, definition] of this._definitions) {
-      if (definition.getScope() !== Scope.Singleton) continue;
+      if (definition.getScope() !== BeanScope.Singleton) continue;
       this.instantiateSingleton(definition);
     }
   }
@@ -40,7 +45,7 @@ export class BeanInstanceRegistry {
     // if a bean's dependency is in prototype scope
     // TODO: create a separate registry for prototype beans
     // and an abstract bean registry class
-    if (definition.getScope() === Scope.Prototype) {
+    if (definition.getScope() === BeanScope.Prototype) {
       const beans =
         definition.getBeans() ??
         definition

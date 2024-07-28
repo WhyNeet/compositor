@@ -1,7 +1,7 @@
 import { METADATA_KEY } from "../constants";
 import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
-import { Scope } from "./bean-scope";
+import { BeanScope } from "./bean-scope";
 import { AnyBeanWrapper } from "./bean-wrapper";
 
 export class BeanDefinition<T extends Ctor> {
@@ -12,7 +12,7 @@ export class BeanDefinition<T extends Ctor> {
   private _resolvedDependencies: AnyBeanDefinition[];
   private _beans: AnyBeanWrapper[];
   private _lazy: boolean;
-  private _scope: Scope;
+  private _scope: BeanScope;
 
   public static class<T extends Ctor>(token: InjectionToken, ctor: T) {
     const definition = new BeanDefinition<T>();
@@ -52,8 +52,9 @@ export class BeanDefinition<T extends Ctor> {
       Reflect.getOwnMetadata(METADATA_KEY.IOC_LAZY, obj) ?? false;
     this._lazy = lazy;
 
-    const scope: Scope =
-      Reflect.getOwnMetadata(METADATA_KEY.IOC_SCOPE, obj) ?? Scope.Singleton;
+    const scope: BeanScope =
+      Reflect.getOwnMetadata(METADATA_KEY.IOC_SCOPE, obj) ??
+      BeanScope.Singleton;
     this._scope = scope;
   }
 

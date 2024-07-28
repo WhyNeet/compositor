@@ -1,4 +1,4 @@
-export enum Scope {
+export enum BeanScope {
   Singleton = "SINGLETON",
   Prototype = "PROTOTYPE",
 }
