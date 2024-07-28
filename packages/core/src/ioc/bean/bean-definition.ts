@@ -1,8 +1,8 @@
 import { METADATA_KEY } from "../constants";
 import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
-import { AnyBean } from "./bean";
 import { Scope } from "./bean-scope";
+import { AnyBeanWrapper } from "./bean-wrapper";
 
 export class BeanDefinition<T extends Ctor> {
   private _token: InjectionToken;
@@ -10,7 +10,7 @@ export class BeanDefinition<T extends Ctor> {
   private _factory: () => InstanceType<T>;
   private _dependencies: InjectionToken[];
   private _resolvedDependencies: AnyBeanDefinition[];
-  private _beans: AnyBean[];
+  private _beans: AnyBeanWrapper[];
   private _lazy: boolean;
   private _scope: Scope;
 
@@ -98,7 +98,7 @@ export class BeanDefinition<T extends Ctor> {
     return this._resolvedDependencies;
   }
 
-  public setBeans(beans: AnyBean[]) {
+  public setBeans(beans: AnyBeanWrapper[]) {
     this._beans = beans;
   }
 

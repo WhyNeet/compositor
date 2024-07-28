@@ -1,7 +1,7 @@
 import { Ctor } from "../types";
 import { BeanDefinition } from "./bean-definition";
 
-export class Bean<T extends Ctor> {
+export class BeanWrapper<T extends Ctor> {
   private _factory: () => InstanceType<T>;
   private _instance: InstanceType<T> | null = null;
   private _lazy: boolean;
@@ -42,4 +42,4 @@ export class Bean<T extends Ctor> {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: must use any
-export type AnyBean = Bean<any>;
+export type AnyBeanWrapper = BeanWrapper<any>;
