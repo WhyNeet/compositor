@@ -66,5 +66,7 @@ export class SingletonBeanRegistry {
 
     const bean = new Bean(definition);
     this._registry.set(definition.getToken(), bean);
+
+    return bean;
   }
 }
