@@ -1,7 +1,5 @@
+import { AnyBeanDefinition, AnyBeanWrapper, BeanWrapper, Scope } from "../bean";
 import { InjectionToken } from "../injection-token";
-import { AnyBeanDefinition, BeanDefinition } from "./bean-definition";
-import { Scope } from "./bean-scope";
-import { AnyBeanWrapper, BeanWrapper } from "./bean-wrapper";
 
 export class SingletonBeanRegistry {
   private _registry: Map<InjectionToken, AnyBeanWrapper>;

@@ -1,7 +1,7 @@
 import { BeanDefinition } from "./bean/bean-definition";
 import { BeanDefinitionRegistry } from "./bean/bean-definition-registry";
-import { SingletonBeanRegistry } from "./bean/singleton-bean-registry";
 import { InjectionToken } from "./injection-token";
+import { SingletonBeanRegistry } from "./registry";
 import { Ctor } from "./types";
 
 export class Container {

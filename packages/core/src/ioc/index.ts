@@ -4,3 +4,4 @@ export * from "./constants";
 export * from "./injection-token";
 export * from "./types";
 export * from "./decorator";
+export * from "./registry";
