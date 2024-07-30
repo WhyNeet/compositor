@@ -17,21 +17,7 @@ export class BeanInstanceRegistry {
   public instantiate(definitions: Map<InjectionToken, AnyBeanDefinition>) {
     this._definitions = definitions;
 
-    this.resolveDependencies();
-
     this.instantiateBeans();
-  }
-
-  private resolveDependencies() {
-    // provide dependencies' definitions
-    // circular dependencies must be resolved during instantiation
-
-    for (const [_, definition] of this._definitions) {
-      const dependencies = definition
-        .getDependencies()
-        .map((dependency) => this._definitions.get(dependency));
-      definition.setResolvedDependencies(dependencies);
-    }
   }
 
   private instantiateBeans() {
