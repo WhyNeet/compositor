@@ -1,3 +1,4 @@
+import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
 import { BeanDefinition } from "./bean-definition";
 import { BeanScope } from "./bean-scope";
@@ -7,18 +8,41 @@ export class BeanWrapper<T extends Ctor> {
   private _instance: InstanceType<T> | null = null;
   private _scope: BeanScope;
   private _lazy: boolean;
+  private _token: InjectionToken;
 
   constructor(definition: BeanDefinition<T>) {
     this._scope = definition.getScope();
     this._lazy = definition.isLazy();
+    this._token = definition.getToken();
     this._factory =
       definition.getFactory() ??
-      (() =>
+      (() => {
         // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
-        Reflect.construct<any[], InstanceType<T>>(
+        const beanInstance = Reflect.construct<any[], InstanceType<T>>(
           definition.getClass(),
-          definition.getBeans().map((bean) => bean.getInstance()),
-        ));
+          definition.getConstructorArgs().map((token) =>
+            definition
+              .getBeans()
+              .find((bean) => bean._token === token)
+              .getInstance(),
+          ),
+        );
+
+        for (const { instance, token, property } of definition
+          .getFieldDependencies()
+          .map(({ token, property }) => ({
+            instance: definition
+              .getBeans()
+              .find((bean) => bean._token === token)
+              .getInstance(),
+            token,
+            property,
+          }))) {
+          beanInstance[property] = instance;
+        }
+
+        return beanInstance;
+      });
 
     if (!this._lazy) this.instantiate();
   }

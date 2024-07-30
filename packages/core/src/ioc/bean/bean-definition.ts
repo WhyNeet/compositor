@@ -1,6 +1,6 @@
 import { METADATA_KEY } from "../constants";
 import { InjectionToken } from "../injection-token";
-import { Ctor } from "../types";
+import { Ctor, FieldArg } from "../types";
 import { BeanScope } from "./bean-scope";
 import { AnyBeanWrapper } from "./bean-wrapper";
 
@@ -28,6 +28,8 @@ export class BeanDefinition<T extends Ctor> {
   private _resolvedBeans: AnyBeanWrapper[];
   private _lazy: boolean;
   private _scope: BeanScope;
+  private _fieldDependencies: FieldArg[];
+  private _constructorArgs: InjectionToken[];
 
   public static class<T extends Ctor>(token: InjectionToken, ctor: T) {
     const definition = new BeanDefinition<T>();
@@ -53,15 +55,21 @@ export class BeanDefinition<T extends Ctor> {
   }
 
   private readMetadata(obj: unknown) {
-    const dependencies: InjectionToken[] =
-      Reflect.getOwnMetadata(METADATA_KEY.IOC_DEPENDENCIES, obj) ?? [];
+    const fieldDependencies: FieldArg[] =
+      Reflect.getOwnMetadata(METADATA_KEY.IOC_FIELD_ARGS, obj) ?? [];
+    this._fieldDependencies = fieldDependencies;
 
     const constructorDependencies: InjectionToken[] = Reflect.getOwnMetadata(
       METADATA_KEY.IOC_FACTORY_ARGS,
       obj,
     );
 
-    this._dependencies = [...dependencies, ...constructorDependencies];
+    this._constructorArgs = constructorDependencies;
+
+    this._dependencies = [
+      ...fieldDependencies.map((arg) => arg.token),
+      ...constructorDependencies,
+    ];
 
     const lazy: boolean =
       Reflect.getOwnMetadata(METADATA_KEY.IOC_LAZY, obj) ?? false;
@@ -120,6 +128,14 @@ export class BeanDefinition<T extends Ctor> {
 
   public getBeans() {
     return this._resolvedBeans;
+  }
+
+  public getFieldDependencies() {
+    return this._fieldDependencies;
+  }
+
+  public getConstructorArgs() {
+    return this._constructorArgs;
   }
 }
 
