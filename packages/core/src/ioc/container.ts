@@ -22,6 +22,8 @@ export class Container {
   }
 
   public bootstrap() {
+    this._beanDefinitionRegistry.resolveDependencies();
+
     this._singletonBeanRegistry = new BeanInstanceRegistry();
     this._singletonBeanRegistry.instantiate(
       this._beanDefinitionRegistry.getAllMapped(),

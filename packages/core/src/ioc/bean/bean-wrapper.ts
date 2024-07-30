@@ -1,12 +1,15 @@
 import { Ctor } from "../types";
 import { BeanDefinition } from "./bean-definition";
+import { BeanScope } from "./bean-scope";
 
 export class BeanWrapper<T extends Ctor> {
   private _factory: () => InstanceType<T>;
   private _instance: InstanceType<T> | null = null;
+  private _scope: BeanScope;
   private _lazy: boolean;
 
   constructor(definition: BeanDefinition<T>) {
+    this._scope = definition.getScope();
     this._lazy = definition.isLazy();
     this._factory =
       definition.getFactory() ??
@@ -21,6 +24,7 @@ export class BeanWrapper<T extends Ctor> {
   }
 
   public getInstance(): InstanceType<T> {
+    if (this._scope === BeanScope.Prototype) return this._factory();
     if (this._lazy)
       return new Proxy(
         {},
