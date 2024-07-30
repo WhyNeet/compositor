@@ -29,12 +29,13 @@ export class BeanDefinitionRegistry {
   private resolveDefinitionDependencies(token: InjectionToken) {
     const definition = this._registry.get(token);
 
-    if (definition.getResolvedDependencies() !== undefined) return definition;
+    if (definition.getResolvedBeanDefinitions() !== undefined)
+      return definition;
 
     const dependencies = definition
       .getDependencies()
       .map((dependency) => this.resolveDefinitionDependencies(dependency));
-    definition.setResolvedDependencies(dependencies);
+    definition.setResolvedBeanDefinitions(dependencies);
 
     return definition;
   }

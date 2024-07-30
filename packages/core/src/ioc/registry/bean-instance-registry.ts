@@ -35,10 +35,10 @@ export class BeanInstanceRegistry {
       const beans =
         definition.getBeans() ??
         definition
-          .getResolvedDependencies()
-          .map((d) => this.instantiateSingleton(d));
+          .getResolvedBeanDefinitions()
+          .map((def) => this.instantiateSingleton(def));
 
-      definition.setBeans(beans);
+      definition.setResolvedBeans(beans);
 
       return new BeanWrapper(this._definitions.get(definition.getToken()));
     }
@@ -46,12 +46,10 @@ export class BeanInstanceRegistry {
     if (this._registry.has(definition.getToken()))
       return this._registry.get(definition.getToken());
 
-    const dependencies = definition.getResolvedDependencies();
-    const beans = dependencies.map((dependency) =>
-      this.instantiateSingleton(dependency),
-    );
+    const dependencies = definition.getResolvedBeanDefinitions();
+    const beans = dependencies.map((def) => this.instantiateSingleton(def));
 
-    definition.setBeans(beans);
+    definition.setResolvedBeans(beans);
 
     const bean = new BeanWrapper(definition);
     this._registry.set(definition.getToken(), bean);

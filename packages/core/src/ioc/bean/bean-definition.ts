@@ -8,9 +8,24 @@ export class BeanDefinition<T extends Ctor> {
   private _token: InjectionToken;
   private _class: T | null;
   private _factory: () => InstanceType<T>;
+
+  /**
+   * These are dependencies' injection tokens (retrieved from class metadata)
+   * @see the \@Bean decorator
+   */
   private _dependencies: InjectionToken[];
-  private _resolvedDependencies: AnyBeanDefinition[];
-  private _beans: AnyBeanWrapper[];
+
+  /**
+   * These are dependencies' definitions (retrieved in BeanDefinitionRegistry)
+   * @see BeanDefinitionRegistry class
+   */
+  private _resolvedBeanDefinitions: AnyBeanDefinition[];
+
+  /**
+   * These are dependencies' beams (retrieved in BeanInstanceRegistry)
+   * @see BeanInstanceRegistry class
+   */
+  private _resolvedBeans: AnyBeanWrapper[];
   private _lazy: boolean;
   private _scope: BeanScope;
 
@@ -91,20 +106,20 @@ export class BeanDefinition<T extends Ctor> {
     return this._dependencies ?? [];
   }
 
-  public setResolvedDependencies(beans: AnyBeanDefinition[]) {
-    this._resolvedDependencies = beans;
+  public setResolvedBeanDefinitions(definitions: AnyBeanDefinition[]) {
+    this._resolvedBeanDefinitions = definitions;
   }
 
-  public getResolvedDependencies() {
-    return this._resolvedDependencies;
+  public getResolvedBeanDefinitions() {
+    return this._resolvedBeanDefinitions;
   }
 
-  public setBeans(beans: AnyBeanWrapper[]) {
-    this._beans = beans;
+  public setResolvedBeans(beans: AnyBeanWrapper[]) {
+    this._resolvedBeans = beans;
   }
 
   public getBeans() {
-    return this._beans;
+    return this._resolvedBeans;
   }
 }
 
