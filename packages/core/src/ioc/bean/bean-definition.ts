@@ -25,7 +25,7 @@ export class BeanDefinition<T extends Ctor> {
    * These are dependencies' beams (retrieved in BeanInstanceRegistry)
    * @see BeanInstanceRegistry class
    */
-  private _resolvedBeans: AnyBeanWrapper[];
+  private _resolvedBeans: Map<InjectionToken, AnyBeanWrapper>;
   private _lazy: boolean;
   private _scope: BeanScope;
   private _fieldDependencies: FieldArg[];
@@ -36,6 +36,7 @@ export class BeanDefinition<T extends Ctor> {
 
     definition._token = token;
     definition._class = ctor;
+    definition._resolvedBeans = new Map();
 
     definition.readMetadata(definition._class);
 
@@ -50,6 +51,7 @@ export class BeanDefinition<T extends Ctor> {
 
     definition._token = token;
     definition._factory = factory;
+    definition._resolvedBeans = new Map();
 
     return definition;
   }
@@ -123,7 +125,8 @@ export class BeanDefinition<T extends Ctor> {
   }
 
   public setResolvedBeans(beans: AnyBeanWrapper[]) {
-    this._resolvedBeans = beans;
+    this._resolvedBeans.clear();
+    for (const bean of beans) this._resolvedBeans.set(bean.getToken(), bean);
   }
 
   public getBeans() {

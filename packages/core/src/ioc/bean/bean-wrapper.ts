@@ -20,21 +20,15 @@ export class BeanWrapper<T extends Ctor> {
         // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
         const beanInstance = Reflect.construct<any[], InstanceType<T>>(
           definition.getClass(),
-          definition.getConstructorArgs().map((token) =>
-            definition
-              .getBeans()
-              .find((bean) => bean._token === token)
-              .getInstance(),
-          ),
+          definition
+            .getConstructorArgs()
+            .map((token) => definition.getBeans().get(token).getInstance()),
         );
 
         for (const { instance, token, property } of definition
           .getFieldDependencies()
           .map(({ token, property }) => ({
-            instance: definition
-              .getBeans()
-              .find((bean) => bean._token === token)
-              .getInstance(),
+            instance: definition.getBeans().get(token).getInstance(),
             token,
             property,
           }))) {
@@ -66,6 +60,10 @@ export class BeanWrapper<T extends Ctor> {
 
   private instantiate() {
     this._instance = this._factory();
+  }
+
+  public getToken() {
+    return this._token;
   }
 }
 
