@@ -6,3 +6,4 @@ export const IOC_FIELD_ARGS = "ioc:fieldargs";
 export const IOC_FACTORY_ARGS = "ioc:factoryargs";
 export const IOC_LAZY = "ioc:lazy";
 export const IOC_SCOPE = "ioc:scope";
+export const IOC_QUALIFIER = "ioc:qualifier";
