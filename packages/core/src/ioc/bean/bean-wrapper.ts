@@ -35,6 +35,9 @@ export class BeanWrapper<T extends Ctor> {
           beanInstance[property] = instance;
         }
 
+        if (definition.getPostConstructMethodKey())
+          beanInstance[definition.getPostConstructMethodKey()]();
+
         return beanInstance;
       });
 

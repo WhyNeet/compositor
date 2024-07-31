@@ -30,6 +30,7 @@ export class BeanDefinition<T extends Ctor> {
   private _scope: BeanScope;
   private _fieldDependencies: FieldArg[];
   private _constructorArgs: InjectionToken[];
+  private _postConstructMethod: string | symbol | undefined;
 
   public static class<T extends Ctor>(token: InjectionToken, ctor: T) {
     const definition = new BeanDefinition<T>();
@@ -89,6 +90,12 @@ export class BeanDefinition<T extends Ctor> {
       Reflect.getOwnMetadata(METADATA_KEY.IOC_SCOPE, obj) ??
       BeanScope.Singleton;
     this._scope = scope;
+
+    const postConstructMethod: string | symbol = Reflect.getOwnMetadata(
+      METADATA_KEY.IOC_POST_CONSTRUCT_METHOD,
+      obj,
+    );
+    this._postConstructMethod = postConstructMethod;
   }
 
   public getToken() {
@@ -147,6 +154,10 @@ export class BeanDefinition<T extends Ctor> {
 
   public getConstructorArgs() {
     return this._constructorArgs;
+  }
+
+  public getPostConstructMethodKey() {
+    return this._postConstructMethod;
   }
 }
 
