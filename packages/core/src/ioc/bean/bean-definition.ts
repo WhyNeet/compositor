@@ -66,6 +66,14 @@ export class BeanDefinition<T extends Ctor> {
       obj,
     );
 
+    const constructorDependenciesMapping: InjectionToken[] =
+      Reflect.getOwnMetadata(METADATA_KEY.IOC_FACTORY_PARAM_MAP, obj) ?? [];
+
+    for (let i = 0; i < constructorDependenciesMapping.length; i++) {
+      if (constructorDependenciesMapping[i])
+        constructorDependencies[i] = constructorDependenciesMapping[i];
+    }
+
     this._constructorArgs = constructorDependencies;
 
     this._dependencies = [

@@ -7,3 +7,4 @@ export const IOC_FACTORY_ARGS = "ioc:factoryargs";
 export const IOC_LAZY = "ioc:lazy";
 export const IOC_SCOPE = "ioc:scope";
 export const IOC_QUALIFIER = "ioc:qualifier";
+export const IOC_FACTORY_PARAM_MAP = "ioc:factoryparammap";
