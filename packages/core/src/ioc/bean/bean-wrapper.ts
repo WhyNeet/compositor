@@ -10,7 +10,7 @@ export class BeanWrapper<T extends Ctor> {
   private _lazy: boolean;
   private _token: InjectionToken;
 
-  constructor(definition: BeanDefinition<T>) {
+  constructor(definition: BeanDefinition<T>, manualInstantiation = false) {
     this._scope = definition.getScope();
     this._lazy = definition.isLazy();
     this._token = definition.getToken();
@@ -55,7 +55,12 @@ export class BeanWrapper<T extends Ctor> {
         return beanInstance;
       });
 
-    if (!this._lazy && this._scope !== BeanScope.Prototype) this.instantiate();
+    if (
+      !this._lazy &&
+      this._scope !== BeanScope.Prototype &&
+      !manualInstantiation
+    )
+      this.instantiate();
   }
 
   public getInstance(): InstanceType<T> {
@@ -75,7 +80,7 @@ export class BeanWrapper<T extends Ctor> {
     return this._instance!;
   }
 
-  private instantiate() {
+  public instantiate() {
     this._instance = this._factory();
   }
 

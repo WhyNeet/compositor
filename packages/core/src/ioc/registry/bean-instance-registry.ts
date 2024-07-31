@@ -1,4 +1,9 @@
-import { AnyBeanDefinition, AnyBeanWrapper, BeanWrapper } from "../bean";
+import {
+  AnyBeanDefinition,
+  AnyBeanWrapper,
+  BeanScope,
+  BeanWrapper,
+} from "../bean";
 import { InjectionToken } from "../injection-token";
 
 export class BeanInstanceRegistry {
@@ -23,7 +28,7 @@ export class BeanInstanceRegistry {
 
   private instantiateBean(definition: AnyBeanDefinition): AnyBeanWrapper {
     if (definition.isLazy() && !this._registry.has(definition.getToken())) {
-      definition.setDependencyResolver(this.instantiateBean.bind(this));
+      definition.setDependencyResolver((def) => this.instantiateBean(def));
       const bean = new BeanWrapper(definition);
       this._registry.set(definition.getToken(), bean);
       return bean;
@@ -32,13 +37,14 @@ export class BeanInstanceRegistry {
     if (this._registry.has(definition.getToken()))
       return this._registry.get(definition.getToken());
 
+    const bean = new BeanWrapper(definition, true);
+    this._registry.set(definition.getToken(), bean);
     const dependencies = definition.getResolvedBeanDefinitions();
     const beans = dependencies.map((def) => this.instantiateBean(def));
 
     definition.setResolvedBeans(beans);
 
-    const bean = new BeanWrapper(definition);
-    this._registry.set(definition.getToken(), bean);
+    if (definition.getScope() !== BeanScope.Prototype) bean.instantiate();
 
     return bean;
   }
