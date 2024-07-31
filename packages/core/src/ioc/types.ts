@@ -1,3 +1,4 @@
+import { AnyBeanDefinition, AnyBeanWrapper } from "./bean";
 import { InjectionToken } from "./injection-token";
 
 export interface Ctor {
@@ -9,3 +10,9 @@ export interface FieldArg {
   token: InjectionToken;
   property: string;
 }
+
+export type DependencyResolver = (
+  definition: AnyBeanDefinition,
+) => AnyBeanWrapper;
+
+export type DefinitionResolver = (token: InjectionToken) => AnyBeanDefinition;

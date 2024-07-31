@@ -1,6 +1,11 @@
 import { METADATA_KEY } from "../constants";
 import { InjectionToken } from "../injection-token";
-import { Ctor, FieldArg } from "../types";
+import {
+  Ctor,
+  DefinitionResolver,
+  DependencyResolver,
+  FieldArg,
+} from "../types";
 import { BeanScope } from "./bean-scope";
 import { AnyBeanWrapper } from "./bean-wrapper";
 
@@ -31,6 +36,8 @@ export class BeanDefinition<T extends Ctor> {
   private _fieldDependencies: FieldArg[];
   private _constructorArgs: InjectionToken[];
   private _postConstructMethod: string | symbol | undefined;
+  private _dependencyResolver: DependencyResolver;
+  private _definitionResolver: DefinitionResolver;
 
   public static class<T extends Ctor>(token: InjectionToken, ctor: T) {
     const definition = new BeanDefinition<T>();
@@ -158,6 +165,22 @@ export class BeanDefinition<T extends Ctor> {
 
   public getPostConstructMethodKey() {
     return this._postConstructMethod;
+  }
+
+  public setDependencyResolver(resolver: DependencyResolver) {
+    this._dependencyResolver = resolver;
+  }
+
+  public getDependencyResolver() {
+    return this._dependencyResolver;
+  }
+
+  public setDefinitionResolver(resolver: DefinitionResolver) {
+    this._definitionResolver = resolver;
+  }
+
+  public getDefinitionResolver() {
+    return this._definitionResolver;
   }
 }
 

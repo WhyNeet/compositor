@@ -17,6 +17,20 @@ export class BeanWrapper<T extends Ctor> {
     this._factory =
       definition.getFactory() ??
       (() => {
+        if (definition.isLazy()) {
+          const definitionResolver = definition.getDefinitionResolver();
+          const definitions = definition
+            .getDependencies()
+            .map(definitionResolver);
+          definition.setResolvedBeanDefinitions(definitions);
+
+          const resolver = definition.getDependencyResolver();
+          const beans = definition
+            .getResolvedBeanDefinitions()
+            .map((dep) => resolver(dep));
+          definition.setResolvedBeans(beans);
+        }
+
         // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
         const beanInstance = Reflect.construct<any[], InstanceType<T>>(
           definition.getClass(),

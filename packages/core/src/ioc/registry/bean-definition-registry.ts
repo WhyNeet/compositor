@@ -30,11 +30,20 @@ export class BeanDefinitionRegistry {
     token: InjectionToken,
     stack = new Set<InjectionToken>(),
   ) {
-    if (stack.has(token))
-      throw new Error(`Circular dependency detected in: "${String(token)}"`);
     const definition = this._registry.get(token);
 
-    if (definition.getResolvedBeanDefinitions() !== undefined)
+    if (definition.isLazy())
+      definition.setDefinitionResolver((token) =>
+        this.resolveDefinitionDependencies(token, new Set()),
+      );
+
+    if (stack.has(token) && !definition.isLazy())
+      throw new Error(`Circular dependency detected in: "${String(token)}"`);
+
+    if (
+      definition.getResolvedBeanDefinitions() !== undefined ||
+      definition.isLazy()
+    )
       return definition;
 
     stack.add(token);

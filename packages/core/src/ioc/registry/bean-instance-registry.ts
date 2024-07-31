@@ -22,6 +22,13 @@ export class BeanInstanceRegistry {
   }
 
   private instantiateBean(definition: AnyBeanDefinition): AnyBeanWrapper {
+    if (definition.isLazy() && !this._registry.has(definition.getToken())) {
+      definition.setDependencyResolver(this.instantiateBean.bind(this));
+      const bean = new BeanWrapper(definition);
+      this._registry.set(definition.getToken(), bean);
+      return bean;
+    }
+
     if (this._registry.has(definition.getToken()))
       return this._registry.get(definition.getToken());
 
