@@ -26,15 +26,24 @@ export class BeanDefinitionRegistry {
     }
   }
 
-  private resolveDefinitionDependencies(token: InjectionToken) {
+  private resolveDefinitionDependencies(
+    token: InjectionToken,
+    stack = new Set<InjectionToken>(),
+  ) {
+    if (stack.has(token))
+      throw new Error(`Circular dependency detected in: "${String(token)}"`);
     const definition = this._registry.get(token);
 
     if (definition.getResolvedBeanDefinitions() !== undefined)
       return definition;
 
+    stack.add(token);
+
     const dependencies = definition
       .getDependencies()
-      .map((dependency) => this.resolveDefinitionDependencies(dependency));
+      .map((dependency) =>
+        this.resolveDefinitionDependencies(dependency, stack),
+      );
     definition.setResolvedBeanDefinitions(dependencies);
 
     return definition;

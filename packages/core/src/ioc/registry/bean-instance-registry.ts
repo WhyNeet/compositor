@@ -1,9 +1,4 @@
-import {
-  AnyBeanDefinition,
-  AnyBeanWrapper,
-  BeanScope,
-  BeanWrapper,
-} from "../bean";
+import { AnyBeanDefinition, AnyBeanWrapper, BeanWrapper } from "../bean";
 import { InjectionToken } from "../injection-token";
 
 export class BeanInstanceRegistry {
