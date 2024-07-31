@@ -32,17 +32,17 @@ export class BeanDefinitionRegistry {
   ) {
     const definition = this._registry.get(token);
 
-    if (definition.isLazy())
+    if (definition.isLate())
       definition.setDefinitionResolver((token) =>
         this.resolveDefinitionDependencies(token, new Set()),
       );
 
-    if (stack.has(token) && !definition.isLazy())
+    if (stack.has(token) && !definition.isLate())
       throw new Error(`Circular dependency detected in: "${String(token)}"`);
 
     if (
       definition.getResolvedBeanDefinitions() !== undefined ||
-      definition.isLazy()
+      definition.isLate()
     )
       return definition;
 

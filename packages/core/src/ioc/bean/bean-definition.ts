@@ -31,7 +31,7 @@ export class BeanDefinition<T extends Ctor> {
    * @see BeanInstanceRegistry class
    */
   private _resolvedBeans: Map<InjectionToken, AnyBeanWrapper>;
-  private _lazy: boolean;
+  private _late: boolean;
   private _scope: BeanScope;
   private _fieldDependencies: FieldArg[];
   private _constructorArgs: InjectionToken[];
@@ -89,9 +89,9 @@ export class BeanDefinition<T extends Ctor> {
       ...constructorDependencies,
     ];
 
-    const lazy: boolean =
-      Reflect.getOwnMetadata(METADATA_KEY.IOC_LAZY, obj) ?? false;
-    this._lazy = lazy;
+    const late: boolean =
+      Reflect.getOwnMetadata(METADATA_KEY.IOC_LATEINIT, obj) ?? false;
+    this._late = late;
 
     const scope: BeanScope =
       Reflect.getOwnMetadata(METADATA_KEY.IOC_SCOPE, obj) ??
@@ -109,8 +109,8 @@ export class BeanDefinition<T extends Ctor> {
     return this._token;
   }
 
-  public isLazy() {
-    return this._lazy;
+  public isLate() {
+    return this._late;
   }
 
   public getFactory() {

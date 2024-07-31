@@ -7,17 +7,17 @@ export class BeanWrapper<T extends Ctor> {
   private _factory: () => InstanceType<T>;
   private _instance: InstanceType<T> | null = null;
   private _scope: BeanScope;
-  private _lazy: boolean;
+  private _late: boolean;
   private _token: InjectionToken;
 
   constructor(definition: BeanDefinition<T>, manualInstantiation = false) {
     this._scope = definition.getScope();
-    this._lazy = definition.isLazy();
+    this._late = definition.isLate();
     this._token = definition.getToken();
     this._factory =
       definition.getFactory() ??
       (() => {
-        if (definition.isLazy()) {
+        if (definition.isLate()) {
           const definitionResolver = definition.getDefinitionResolver();
           const definitions = definition
             .getDependencies()
@@ -56,7 +56,7 @@ export class BeanWrapper<T extends Ctor> {
       });
 
     if (
-      !this._lazy &&
+      !this._late &&
       this._scope !== BeanScope.Prototype &&
       !manualInstantiation
     )
@@ -65,7 +65,7 @@ export class BeanWrapper<T extends Ctor> {
 
   public getInstance(): InstanceType<T> {
     if (this._scope === BeanScope.Prototype) return this._factory();
-    if (this._lazy)
+    if (this._late)
       return new Proxy(
         {},
         {
