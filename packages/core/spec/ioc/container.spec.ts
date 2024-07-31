@@ -1,13 +1,18 @@
-import { Bean, Container } from "../../src";
+import { Autowired, Bean, Container, Late, Qualifier } from "../../src";
 
 @Bean()
 class B {
+  @Autowired
+  @Qualifier("A")
+  private a: unknown;
+
   public printMessage(message: string) {
     message;
   }
 }
 
 @Bean()
+@Late()
 class A {
   public message = "hello world";
 
@@ -22,7 +27,7 @@ class C {
     private a: A,
     private b: B,
   ) {
-    expect(a).toBeInstanceOf(A);
+    expect(a.message).toBe("hello world");
     expect(b).toBeInstanceOf(B);
     b.printMessage(a.message);
   }

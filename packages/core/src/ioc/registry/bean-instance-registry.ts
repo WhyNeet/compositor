@@ -21,7 +21,7 @@ export class BeanInstanceRegistry {
   }
 
   private instantiateBeans() {
-    for (const [token, definition] of this._definitions) {
+    for (const [_, definition] of this._definitions) {
       this.instantiateBean(definition);
     }
   }
