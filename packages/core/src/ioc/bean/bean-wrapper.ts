@@ -38,7 +38,7 @@ export class BeanWrapper<T extends Ctor> {
         return beanInstance;
       });
 
-    if (!this._lazy) this.instantiate();
+    if (!this._lazy && this._scope !== BeanScope.Prototype) this.instantiate();
   }
 
   public getInstance(): InstanceType<T> {
