@@ -4,13 +4,16 @@ import { ApplicationContext } from "./context";
 export class ConfigurationContext {
   private _context: ApplicationContext;
   private _configure: (
-    cx: Configuration,
+    conf: { new (): Configuration },
     context: ConfigurationContext,
   ) => void;
 
   constructor(
     context: ApplicationContext,
-    configure: (cx: Configuration, context: ConfigurationContext) => void,
+    configure: (
+      conf: { new (): Configuration },
+      context: ConfigurationContext,
+    ) => void,
   ) {
     this._context = context;
     this._configure = configure;
@@ -18,7 +21,7 @@ export class ConfigurationContext {
     this.registerFactory = context.registerFactory.bind(context);
   }
 
-  public configure(configuration: Configuration) {
+  public configure(configuration: { new (): Configuration }) {
     this._configure(configuration, this);
   }
 

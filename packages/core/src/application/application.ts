@@ -11,13 +11,15 @@ export class Application {
     this._context = context;
   }
 
-  public configure(configuration: Configuration) {
+  public configure(configuration: { new (): Configuration }) {
     const context = new ConfigurationContext(this._context, this._configure);
-    configuration.configure(context);
+    const conf = new configuration();
+    conf.configure(context);
   }
 
-  private _configure(cfg: Configuration, cx: ConfigurationContext) {
-    cfg.configure(cx);
+  private _configure(cfg: { new (): Configuration }, cx: ConfigurationContext) {
+    const configuration = new cfg();
+    configuration.configure(cx);
   }
 
   public getContext() {
