@@ -31,6 +31,8 @@ export class BeanDefinitionRegistry {
     stack = new Set<InjectionToken>(),
   ) {
     const definition = this._registry.get(token);
+    if (!definition)
+      throw new Error(`Bean with token "${String(token)}" is not registered`);
 
     if (definition.isLate())
       definition.setDefinitionResolver((token) =>
