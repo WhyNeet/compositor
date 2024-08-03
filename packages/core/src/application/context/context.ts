@@ -1,6 +1,6 @@
-import { Container, Ctor, InjectionToken, METADATA_KEY } from "../ioc";
-import { APPLICATION_TOKEN } from "./tokens";
-import { getCtorToken } from "./util";
+import { Container, Ctor, InjectionToken, METADATA_KEY } from "../../ioc";
+import { APPLICATION_TOKEN } from "../tokens";
+import { getCtorToken } from "../util";
 
 export class ApplicationContext {
   private _container: Container;
@@ -11,10 +11,6 @@ export class ApplicationContext {
       APPLICATION_TOKEN.APPLICATION_CONTEXT,
       () => this,
     );
-  }
-
-  public root<T extends Ctor>(root: T) {
-    this._container.registerCtor(getCtorToken(root), root);
   }
 
   public registerFactory(token: InjectionToken, factory: () => unknown) {
@@ -28,8 +24,12 @@ export class ApplicationContext {
     if (ctor) this._container.registerCtor(tokenOrCtor as InjectionToken, ctor);
     else
       this._container.registerCtor(
-        Reflect.getOwnMetadata(METADATA_KEY.DESIGN_TYPE, tokenOrCtor),
+        getCtorToken(tokenOrCtor as Ctor),
         tokenOrCtor as Ctor,
       );
+  }
+
+  public bootstrap() {
+    this._container.bootstrap();
   }
 }
