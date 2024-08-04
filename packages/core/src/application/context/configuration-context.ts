@@ -1,3 +1,4 @@
+import { Ctor, InjectionToken } from "../../ioc";
 import { Configuration } from "../configuration";
 import { ApplicationContext } from "./context";
 
@@ -17,14 +18,20 @@ export class ConfigurationContext {
   ) {
     this._context = context;
     this._configure = configure;
-    this.registerCtor = context.registerCtor.bind(context);
-    this.registerFactory = context.registerFactory.bind(context);
   }
 
   public configure(configuration: { new (): Configuration }) {
     this._configure(configuration, this);
   }
 
-  public registerFactory: ApplicationContext["registerFactory"];
-  public registerCtor: ApplicationContext["registerCtor"];
+  public registerFactory(token: InjectionToken, factory: () => unknown) {
+    this._context.registerFactory(token, factory);
+  }
+
+  public registerCtor(token: InjectionToken, ctor: Ctor): void;
+  public registerCtor(ctor: Ctor): void;
+
+  public registerCtor(tokenOrCtor: InjectionToken | Ctor, ctor?: Ctor): void {
+    this._context.registerCtor(tokenOrCtor as InjectionToken, ctor);
+  }
 }
