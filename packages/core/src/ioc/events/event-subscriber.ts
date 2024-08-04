@@ -8,8 +8,12 @@ export class EventSubscriber {
     this._events = events;
   }
 
-  public subscribe(type: ContainerEvent, listener: EventListener) {
-    this._events.subscribe(type, listener);
+  public subscribe(
+    type: ContainerEvent,
+    listener: EventListener,
+    replay = true,
+  ) {
+    this._events.subscribe(type, listener, replay);
   }
 
   public unsubscribe(type: ContainerEvent, listener: EventListener) {
