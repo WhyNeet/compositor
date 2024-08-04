@@ -9,11 +9,17 @@ export class BeanWrapper<T extends Ctor> {
   private _scope: BeanScope;
   private _late: boolean;
   private _token: InjectionToken;
+  private _onInstantiate: (bean: BeanWrapper<T>) => void;
 
-  constructor(definition: BeanDefinition<T>, manualInstantiation = false) {
+  constructor(
+    definition: BeanDefinition<T>,
+    onInstantiate: (bean: BeanWrapper<T>) => void,
+    manualInstantiation = false,
+  ) {
     this._scope = definition.getScope();
     this._late = definition.isLate();
     this._token = definition.getToken();
+    this._onInstantiate = onInstantiate;
     this._factory =
       definition.getFactory() ??
       (() => {
@@ -82,6 +88,7 @@ export class BeanWrapper<T extends Ctor> {
 
   public instantiate() {
     this._instance = this._factory();
+    this._onInstantiate(this);
   }
 
   public getToken() {
