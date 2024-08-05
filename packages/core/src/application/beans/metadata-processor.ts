@@ -19,6 +19,8 @@ export class MetadataProcessor {
   private _handlers: Map<MetadataKey, MetadataHandler[]>;
 
   constructor(@Context() context: ApplicationContext) {
+    this._handlers = new Map();
+
     context
       .containerEvents()
       .subscribe(ContainerEvent.BEAN_INSTANTIATED, (data) => {
