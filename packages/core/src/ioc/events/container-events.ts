@@ -6,6 +6,7 @@ export class ContainerEvents {
 
   constructor() {
     this._listeners = new Map();
+    this._events = [];
   }
 
   public subscribe(
