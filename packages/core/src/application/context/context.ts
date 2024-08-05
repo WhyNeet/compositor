@@ -1,5 +1,6 @@
 import { Container, Ctor, InjectionToken, METADATA_KEY } from "../../ioc";
 import { MetadataProcessor } from "../beans";
+import { ControllerSetupAspect } from "../beans/controller-setup-aspect";
 import { APPLICATION_TOKEN } from "../tokens";
 import { getCtorToken } from "../util";
 
@@ -13,6 +14,10 @@ export class ApplicationContext {
       () => this,
     );
     this.registerCtor(APPLICATION_TOKEN.METADATA_PROCESSOR, MetadataProcessor);
+    this.registerCtor(
+      APPLICATION_TOKEN.CONTROLLER_SETUP_ASPECT,
+      ControllerSetupAspect,
+    );
   }
 
   public containerEvents() {
