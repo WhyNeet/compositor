@@ -11,7 +11,7 @@ export function Bean() {
       Reflect.getOwnMetadata(METADATA_KEY.DESIGN_PARAM_TYPES, target) ?? [];
     Reflect.defineMetadata(
       METADATA_KEY.IOC_FACTORY_ARGS,
-      dependencies.map((dependency) => dependency.name),
+      dependencies.map((dependency) => dependency?.name),
       target,
     );
 
