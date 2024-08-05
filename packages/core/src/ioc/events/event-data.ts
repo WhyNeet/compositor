@@ -32,9 +32,10 @@ export function constructEventData(
     payload: beanOrDefinition
       ? {
           bean:
-            bean ?? beanOrDefinition instanceof BeanWrapper
+            bean ??
+            (beanOrDefinition instanceof BeanWrapper
               ? (beanOrDefinition as AnyBeanWrapper)
-              : null,
+              : null),
           definition:
             beanOrDefinition instanceof BeanDefinition
               ? (beanOrDefinition as AnyBeanDefinition)
