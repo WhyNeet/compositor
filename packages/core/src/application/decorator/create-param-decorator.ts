@@ -12,10 +12,8 @@ export function createParamDecorator(factory: ParamDecoratorFactory) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ) {
-    const provide: ProvisionedFactory[] = Reflect.getOwnMetadata(
-      propertyKey,
-      target,
-    );
+    const provide: ProvisionedFactory[] =
+      Reflect.getOwnMetadata(propertyKey, target) ?? [];
     provide.push({ index: parameterIndex, factory });
     Reflect.defineMetadata(propertyKey, provide, target);
   };
