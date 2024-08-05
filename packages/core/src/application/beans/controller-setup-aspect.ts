@@ -38,13 +38,11 @@ export class ControllerSetupAspect {
     wrapper: AnyBeanWrapper,
     propertyKey: string,
   ) {
-    const provide: ProvisionedFactory[] = Reflect.getOwnMetadata(
-      propertyKey,
-      def.getClass(),
-    );
+    const provide: ProvisionedFactory[] =
+      Reflect.getOwnMetadata(propertyKey, def.getClass()) ?? [];
     const handler = wrapper.getInstance()[propertyKey];
 
-    return (data: HandlerData) => {
+    wrapper.getInstance()[propertyKey] = (data: HandlerData) => {
       const args = Array(provide.length).fill(null);
 
       for (const { factory, index } of provide) {
