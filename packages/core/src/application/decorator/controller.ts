@@ -1,3 +1,4 @@
+import { Bean } from "../../ioc";
 import { METADATA_KEY } from "../constants";
 
 export function Controller(path: string) {
@@ -6,6 +7,7 @@ export function Controller(path: string) {
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
   ) {
+    Bean()(target);
     Reflect.defineMetadata(METADATA_KEY.APPLICATION_CONTROLLER, path, target);
   };
 }
