@@ -5,21 +5,21 @@ export function Handler(...path: unknown[]) {
     // biome-ignore lint/complexity/useArrowFunction: not using arrow function
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
-    propertyName: string,
+    propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
     Reflect.defineMetadata(
       METADATA_KEY.CONTROLLER_HANDLER,
       path,
       target.constructor,
-      propertyName,
+      propertyKey,
     );
     const handlers: string[] =
       Reflect.getOwnMetadata(
         METADATA_KEY.CONTROLLER_HANDLERS,
         target.constructor,
       ) ?? [];
-    handlers.push(propertyName);
+    handlers.push(propertyKey);
     Reflect.defineMetadata(
       METADATA_KEY.CONTROLLER_HANDLERS,
       handlers,
