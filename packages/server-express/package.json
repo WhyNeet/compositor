@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@compositor/core": "workspace:^",
+    "@compositor/http": "workspace:^",
     "express": "^4.19.2",
     "reflect-metadata": "^0.2.2"
   }
