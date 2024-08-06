@@ -1,0 +1,23 @@
+{
+  "name": "@compositor/server-express",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "WhyNeet",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.14.12"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  }
+}
