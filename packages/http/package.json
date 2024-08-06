@@ -16,8 +16,5 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
-  },
-  "dependencies": {
-    "reflect-metadata": "^0.2.2"
   }
 }
