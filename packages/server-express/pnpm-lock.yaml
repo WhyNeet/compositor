@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@compositor/core':
+        specifier: workspace:^
+        version: link:../core
       express:
         specifier: ^4.19.2
         version: 4.19.2
