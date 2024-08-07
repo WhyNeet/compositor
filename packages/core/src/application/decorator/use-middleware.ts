@@ -1,7 +1,7 @@
 import { METADATA_KEY } from "../constants";
 import { Middleware as AbstractMiddleware } from "../features";
 
-export function Middleware(middleware: {
+export function UseMiddleware(middleware: {
   // biome-ignore lint/suspicious/noExplicitAny: any middleware constructor
   new (...args: any[]): AbstractMiddleware;
 }) {
