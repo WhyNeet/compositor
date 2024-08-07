@@ -1,7 +1,10 @@
 import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../ioc";
+import { METADATA_KEY as IOC_METADATA_KEY } from "../../ioc";
 import { METADATA_KEY } from "../constants";
-import { MetadataProcessor, ProvisionedFactory } from "../decorator";
+import { ApplicationContext } from "../context";
+import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";
 import { MetadataProcessor as MP } from "./metadata-processor";
+import { Middleware } from "./middleware";
 
 export interface HandlerData {
   request: unknown;
@@ -10,7 +13,10 @@ export interface HandlerData {
 
 @Bean()
 export class ControllerSetupAspect {
-  constructor(@MetadataProcessor() private metadataProcessor: MP) {
+  constructor(
+    @MetadataProcessor() private metadataProcessor: MP,
+    @Context() private context: ApplicationContext,
+  ) {
     this.metadataProcessor.addHandler(
       METADATA_KEY.APPLICATION_CONTROLLER,
       this.setupController.bind(this),
@@ -31,6 +37,7 @@ export class ControllerSetupAspect {
     propertyKey: string,
   ) {
     this.prepareParamDecorators(def, wrapper, propertyKey);
+    this.prepareMiddleware(def, wrapper, propertyKey);
   }
 
   private prepareParamDecorators(
@@ -51,5 +58,38 @@ export class ControllerSetupAspect {
 
       handler(...args);
     };
+  }
+
+  private prepareMiddleware(
+    def: AnyBeanDefinition,
+    wrapper: AnyBeanWrapper,
+    propertyKey: string,
+  ) {
+    const middlewares: Ctor[] = Reflect.getOwnMetadata(
+      METADATA_KEY.HANDLER_MIDDLEWARE(propertyKey),
+      def.getClass(),
+    );
+    const middlewareBeans: Middleware[] = middlewares
+      .map((mw) => Reflect.getOwnMetadata(IOC_METADATA_KEY.DESIGN_TYPE, mw))
+      .map(this.context.getBean) as Middleware[];
+
+    for (let i = 0; i < middlewareBeans.length; i++)
+      if (middlewareBeans[i] === null)
+        throw new Error(
+          `Middleware with name "${middlewares[i].name}" is not registered`,
+        );
+
+    let prevHandler = (request: unknown, response: unknown) =>
+      wrapper.getInstance()[propertyKey]({ request, response });
+    let currHandler = null;
+
+    for (const middleware of middlewareBeans) {
+      currHandler = (req: unknown, res: unknown) => {
+        middleware.apply(req, res, () => prevHandler(req, res));
+      };
+      prevHandler = currHandler;
+    }
+
+    wrapper.getInstance()[propertyKey] = currHandler;
   }
 }
