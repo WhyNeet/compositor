@@ -1,6 +1,5 @@
 import { Container, Ctor, InjectionToken, METADATA_KEY } from "../../ioc";
-import { MetadataProcessor } from "../beans";
-import { ControllerSetupAspect } from "../beans/controller-setup-aspect";
+import { ControllerSetupAspect, MetadataProcessor } from "../features";
 import { APPLICATION_TOKEN } from "../tokens";
 import { getCtorToken } from "../util";
 
