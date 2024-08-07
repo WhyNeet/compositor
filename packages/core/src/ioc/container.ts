@@ -7,7 +7,7 @@ import { Ctor } from "./types";
 
 export class Container {
   private _beanDefinitionRegistry: BeanDefinitionRegistry;
-  private _singletonBeanRegistry: BeanInstanceRegistry;
+  private _beanInstanceRegistry: BeanInstanceRegistry;
   private _events: ContainerEvents;
 
   constructor() {
@@ -35,11 +35,15 @@ export class Container {
     return new EventSubscriber(this._events);
   }
 
+  public getBean<T>(token: InjectionToken): T | null {
+    return this._beanInstanceRegistry.getBean(token).getInstance();
+  }
+
   public bootstrap() {
     this._beanDefinitionRegistry.resolveDependencies();
 
-    this._singletonBeanRegistry = new BeanInstanceRegistry(this._events);
-    this._singletonBeanRegistry.instantiate(
+    this._beanInstanceRegistry = new BeanInstanceRegistry(this._events);
+    this._beanInstanceRegistry.instantiate(
       this._beanDefinitionRegistry.getAllMapped(),
     );
 

@@ -39,6 +39,10 @@ export class ApplicationContext {
       );
   }
 
+  public getBean<T>(token: InjectionToken): T {
+    return this._container.getBean(token);
+  }
+
   public bootstrap() {
     this._container.bootstrap();
   }

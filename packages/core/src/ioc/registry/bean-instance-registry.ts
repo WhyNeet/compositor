@@ -17,6 +17,10 @@ export class BeanInstanceRegistry {
     this._events = events;
   }
 
+  public getBean(token: InjectionToken): AnyBeanWrapper | null {
+    return this._registry.get(token);
+  }
+
   public instantiate(definitions: Map<InjectionToken, AnyBeanDefinition>) {
     this._definitions = definitions;
 
