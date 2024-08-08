@@ -1,4 +1,10 @@
-import { Bean } from "@compositor/core";
+import {
+  ApplicationContext,
+  Bean,
+  ContainerEvent,
+  Context,
+  EventListener,
+} from "@compositor/core";
 import { HttpMethod } from "@compositor/http";
 import express, {
   Express,
@@ -11,8 +17,19 @@ import express, {
 export class ServerBean {
   private _app: Express;
 
-  constructor() {
+  constructor(@Context() private context: ApplicationContext) {
     this._app = express();
+
+    this.context.containerEvents().subscribe(
+      ContainerEvent.CONTAINER_BOOTSTRAPPED,
+      (
+        ((data) => {
+          this.launch(8080, "127.0.0.1", () => {
+            console.log("LAUNCHED EXPRESS SERVER", data);
+          });
+        }) as EventListener
+      ).bind(this),
+    );
   }
 
   public registerMiddleware(
