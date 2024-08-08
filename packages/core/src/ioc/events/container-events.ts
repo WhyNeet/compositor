@@ -17,7 +17,9 @@ export class ContainerEvents {
     if (this._listeners.has(type)) this._listeners.get(type).push(listener);
     else this._listeners.set(type, [listener]);
 
-    if (replay) for (const event of this._events) listener(event);
+    if (replay)
+      for (const event of this._events)
+        if (event.type === type) listener(event);
   }
 
   public unsubscribe(type: ContainerEvent, listener: EventListener) {
