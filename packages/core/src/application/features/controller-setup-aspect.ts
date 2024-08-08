@@ -65,10 +65,11 @@ export class ControllerSetupAspect {
     wrapper: AnyBeanWrapper,
     propertyKey: string,
   ) {
-    const middlewares: Ctor[] = Reflect.getOwnMetadata(
-      METADATA_KEY.HANDLER_MIDDLEWARE(propertyKey),
-      def.getClass(),
-    );
+    const middlewares: Ctor[] =
+      Reflect.getOwnMetadata(
+        METADATA_KEY.HANDLER_MIDDLEWARE(propertyKey),
+        def.getClass(),
+      ) ?? [];
     const middlewareBeans: Middleware[] = middlewares
       .map((mw) => Reflect.getOwnMetadata(IOC_METADATA_KEY.DESIGN_TYPE, mw))
       .map(this.context.getBean) as Middleware[];
@@ -90,6 +91,6 @@ export class ControllerSetupAspect {
       prevHandler = currHandler;
     }
 
-    wrapper.getInstance()[propertyKey] = currHandler;
+    wrapper.getInstance()[propertyKey] = prevHandler;
   }
 }
