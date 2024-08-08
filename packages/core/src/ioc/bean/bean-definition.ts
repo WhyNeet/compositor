@@ -117,15 +117,6 @@ export class BeanDefinition<T extends Ctor> {
     return this._factory;
   }
 
-  public getFactoryResult() {
-    const result = this._factory();
-
-    // read metadata of class instance
-    this.readMetadata(result);
-
-    return result;
-  }
-
   public getClass() {
     return this._class;
   }
