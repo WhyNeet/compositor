@@ -8,7 +8,7 @@ import express, {
 } from "express";
 
 @Bean()
-export class Server {
+export class ServerBean {
   private _app: Express;
 
   constructor() {
