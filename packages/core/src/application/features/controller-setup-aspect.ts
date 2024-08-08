@@ -3,7 +3,7 @@ import { METADATA_KEY as IOC_METADATA_KEY } from "../../ioc";
 import { METADATA_KEY } from "../constants";
 import { ApplicationContext } from "../context";
 import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";
-import { MetadataProcessor as MP } from "./metadata-processor";
+import { MetadataProcessorBean } from "./metadata-processor";
 import { Middleware } from "./middleware";
 
 export interface HandlerData {
@@ -14,7 +14,7 @@ export interface HandlerData {
 @Bean()
 export class ControllerSetupAspect {
   constructor(
-    @MetadataProcessor() private metadataProcessor: MP,
+    @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
     @Context() private context: ApplicationContext,
   ) {
     this.metadataProcessor.addHandler(

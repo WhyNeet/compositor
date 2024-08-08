@@ -4,3 +4,4 @@ export * from "./context";
 export * from "./decorator";
 export * from "./tokens";
 export * from "./util";
+export * from "./features";

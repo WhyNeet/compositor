@@ -15,7 +15,7 @@ export type MetadataHandler = (
 ) => void;
 
 @Bean()
-export class MetadataProcessor {
+export class MetadataProcessorBean {
   private _handlers: Map<MetadataKey, MetadataHandler[]>;
 
   constructor(@Context() context: ApplicationContext) {
