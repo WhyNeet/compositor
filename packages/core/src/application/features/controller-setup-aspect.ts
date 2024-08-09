@@ -6,11 +6,6 @@ import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";
 import { MetadataProcessorBean } from "./metadata-processor";
 import { Middleware } from "./middleware";
 
-export interface HandlerData {
-  request: unknown;
-  response: unknown;
-}
-
 @Bean()
 export class ControllerSetupAspect {
   constructor(
@@ -49,11 +44,14 @@ export class ControllerSetupAspect {
       Reflect.getOwnMetadata(propertyKey, def.getClass()) ?? [];
     const handler = wrapper.getInstance()[propertyKey];
 
-    wrapper.getInstance()[propertyKey] = (data: HandlerData) => {
+    wrapper.getInstance()[propertyKey] = (
+      request: unknown,
+      response: unknown,
+    ) => {
       const args = Array(provide.length).fill(null);
 
       for (const { factory, index } of provide) {
-        args[index] = factory(data.request, data.response);
+        args[index] = factory(request, response);
       }
 
       handler(...args);
