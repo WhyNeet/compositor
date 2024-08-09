@@ -7,6 +7,7 @@ import {
   MetadataProcessorBean,
 } from "@compositor/core";
 import { HttpMethod } from "@compositor/http";
+import { Request, Response } from "express";
 import { Server } from "../decorator";
 import { ServerBean } from "../server";
 
@@ -49,7 +50,13 @@ export class HandlerRegistrationAspect {
         path: path.slice(1).join("/"),
       }));
 
-    for (const { handler, method, path } of handlers)
-      this.server.registerRoute(method, path, handler);
+    for (const { handler, method, path } of handlers) {
+      const expressHandler = (req: Request, res: Response) => {
+        handler(req, res);
+        res.end();
+      };
+
+      this.server.registerRoute(method, path, expressHandler);
+    }
   }
 }

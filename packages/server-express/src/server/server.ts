@@ -25,7 +25,7 @@ export class ServerBean {
       (
         ((data) => {
           this.launch(8080, "127.0.0.1", () => {
-            console.log("LAUNCHED EXPRESS SERVER", data);
+            console.log("LAUNCHED EXPRESS SERVER:", "http://127.0.0.1:8080");
           });
         }) as EventListener
       ).bind(this),

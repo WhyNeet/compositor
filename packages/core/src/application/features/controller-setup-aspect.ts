@@ -70,6 +70,9 @@ export class ControllerSetupAspect {
         METADATA_KEY.HANDLER_MIDDLEWARE(propertyKey),
         def.getClass(),
       ) ?? [];
+
+    if (!middlewares.length) return;
+
     const middlewareBeans: Middleware[] = middlewares
       .map((mw) => Reflect.getOwnMetadata(IOC_METADATA_KEY.DESIGN_TYPE, mw))
       .map(this.context.getBean) as Middleware[];
@@ -80,17 +83,21 @@ export class ControllerSetupAspect {
           `Middleware with name "${middlewares[i].name}" is not registered`,
         );
 
-    let prevHandler = (request: unknown, response: unknown) =>
-      wrapper.getInstance()[propertyKey]({ request, response });
-    let currHandler = null;
+    const chainMiddlewares = (
+      idx: number,
+    ): ((req: unknown, res: unknown) => void) => {
+      const apply = middlewareBeans[idx].apply;
+      middlewareBeans[idx].apply = (req: unknown, res: unknown) =>
+        apply(
+          req,
+          res,
+          idx === middlewareBeans.length - 1
+            ? wrapper.getInstance()[propertyKey]
+            : () => chainMiddlewares(idx + 1)(req, res),
+        );
+      return middlewareBeans[idx].apply as ReturnType<typeof chainMiddlewares>;
+    };
 
-    for (const middleware of middlewareBeans) {
-      currHandler = (req: unknown, res: unknown) => {
-        middleware.apply(req, res, () => prevHandler(req, res));
-      };
-      prevHandler = currHandler;
-    }
-
-    wrapper.getInstance()[propertyKey] = prevHandler;
+    wrapper.getInstance()[propertyKey] = chainMiddlewares(0);
   }
 }
