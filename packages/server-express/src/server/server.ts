@@ -48,10 +48,7 @@ export class ServerBean {
     path: string,
     handler: (req: ExpressRequest, res: ExpressResponse) => void,
   ) {
-    this._app[method.toLowerCase()](path, (req, res) => {
-      console.log("req res exist?", !!req, !!res);
-      handler(req, res);
-    });
+    this._app[method.toLowerCase()](path, handler);
   }
 
   public launch(port: number, hostname: string, callback?: () => void) {

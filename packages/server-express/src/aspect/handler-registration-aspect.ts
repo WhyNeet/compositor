@@ -52,7 +52,6 @@ export class HandlerRegistrationAspect {
 
     for (const { handler, method, path } of handlers) {
       const expressHandler = (req: Request, res: Response) => {
-        console.log("expressHandler:", !!req, !!res);
         handler(req, res);
         res.end();
       };

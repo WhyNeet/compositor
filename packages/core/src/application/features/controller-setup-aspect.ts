@@ -3,6 +3,7 @@ import { METADATA_KEY as IOC_METADATA_KEY } from "../../ioc";
 import { METADATA_KEY } from "../constants";
 import { ApplicationContext } from "../context";
 import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";
+import { getCtorToken } from "../util";
 import { MetadataProcessorBean } from "./metadata-processor";
 import { Middleware } from "./middleware";
 
@@ -72,8 +73,8 @@ export class ControllerSetupAspect {
     if (!middlewares.length) return;
 
     const middlewareBeans: Middleware[] = middlewares
-      .map((mw) => Reflect.getOwnMetadata(IOC_METADATA_KEY.DESIGN_TYPE, mw))
-      .map(this.context.getBean) as Middleware[];
+      .map((mw) => getCtorToken(mw))
+      .map(this.context.getBean.bind(this.context)) as Middleware[];
 
     for (let i = 0; i < middlewareBeans.length; i++)
       if (middlewareBeans[i] === null)
@@ -81,21 +82,20 @@ export class ControllerSetupAspect {
           `Middleware with name "${middlewares[i].name}" is not registered`,
         );
 
-    const chainMiddlewares = (
-      idx: number,
-    ): ((req: unknown, res: unknown) => void) => {
-      const apply = middlewareBeans[idx].apply;
-      middlewareBeans[idx].apply = (req: unknown, res: unknown) =>
-        apply(
-          req,
-          res,
-          idx === middlewareBeans.length - 1
-            ? wrapper.getInstance()[propertyKey]
-            : () => chainMiddlewares(idx + 1)(req, res),
-        );
-      return middlewareBeans[idx].apply as ReturnType<typeof chainMiddlewares>;
-    };
+    const handler = wrapper.getInstance()[propertyKey];
 
-    wrapper.getInstance()[propertyKey] = chainMiddlewares(0);
+    const middlewareChain = Array(middlewareBeans.length).fill(null);
+
+    for (let i = 0; i < middlewareChain.length - 1; i++) {
+      middlewareChain[i] = (req: unknown, res: unknown) =>
+        middlewareBeans[i].apply(req, res, middlewareChain[i + 1]);
+    }
+
+    middlewareChain[middlewareChain.length - 1] = (
+      req: unknown,
+      res: unknown,
+    ) => middlewareBeans.at(-1).apply(req, res, handler);
+
+    wrapper.getInstance()[propertyKey] = middlewareChain[0];
   }
 }

@@ -27,9 +27,8 @@ export class MetadataProcessorBean {
         context.containerEvents().subscribe(
           ContainerEvent.BEAN_INSTANTIATED,
           (data) => {
-            console.log("handle:", data.payload.definition.getToken());
             const keys: MetadataKey[] = Reflect.getOwnMetadataKeys(
-              data.payload.definition.getClass(),
+              data.payload.bean.getInstance().constructor,
             );
             for (const key of keys)
               if (this._handlers.has(key))
