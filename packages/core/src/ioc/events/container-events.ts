@@ -33,8 +33,8 @@ export class ContainerEvents {
   }
 
   public emit(data: EventData) {
-    if (!this._listeners.has(data.type)) return;
     this._events.push(data);
+    if (!this._listeners.has(data.type)) return;
     for (const listener of this._listeners.get(data.type)) listener(data);
   }
 }
