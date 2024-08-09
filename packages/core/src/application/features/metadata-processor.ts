@@ -23,14 +23,21 @@ export class MetadataProcessorBean {
 
     context
       .containerEvents()
-      .subscribe(ContainerEvent.BEAN_INSTANTIATED, (data) => {
-        const keys: MetadataKey[] = Reflect.getOwnMetadataKeys(
-          data.payload.definition.getClass(),
+      .subscribe(ContainerEvent.CONTAINER_BOOTSTRAPPED, () => {
+        context.containerEvents().subscribe(
+          ContainerEvent.BEAN_INSTANTIATED,
+          (data) => {
+            console.log("handle:", data.payload.definition.getToken());
+            const keys: MetadataKey[] = Reflect.getOwnMetadataKeys(
+              data.payload.definition.getClass(),
+            );
+            for (const key of keys)
+              if (this._handlers.has(key))
+                for (const handler of this._handlers.get(key))
+                  handler(data.payload.definition, data.payload.bean);
+          },
+          true,
         );
-        for (const key of keys)
-          if (this._handlers.has(key))
-            for (const handler of this._handlers.get(key))
-              handler(data.payload.definition, data.payload.bean);
       });
   }
 

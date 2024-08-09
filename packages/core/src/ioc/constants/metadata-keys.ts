@@ -9,3 +9,4 @@ export const IOC_SCOPE = "ioc:scope";
 export const IOC_QUALIFIER = "ioc:qualifier";
 export const IOC_FACTORY_PARAM_MAP = "ioc:factoryparammap";
 export const IOC_POST_CONSTRUCT_METHOD = "ioc:postconstructmethod";
+export const IOC_DEFAULT_TOKEN = "ioc:defaulttoken";

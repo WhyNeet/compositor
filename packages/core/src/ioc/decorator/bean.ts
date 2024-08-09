@@ -15,6 +15,8 @@ export function Bean() {
       target,
     );
 
+    Reflect.defineMetadata(METADATA_KEY.IOC_DEFAULT_TOKEN, target.name, target);
+
     return target;
   };
 }
