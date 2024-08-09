@@ -3,11 +3,18 @@ export abstract class HttpResponse {
   abstract cookies: Map<string | symbol, unknown>;
   abstract setType: (type: string) => string;
   abstract setStatus: (status: number) => void;
+  abstract body: ResponseBody;
 }
 
 export abstract class ResponseHeaders {
   abstract append(name: string | symbol, value: string | string[]): void;
   abstract get(name: string | symbol): void;
+}
+
+export abstract class ResponseBody {
+  // biome-ignore lint/complexity/noBannedTypes: any json object
+  abstract json(body: Object): void;
+  abstract text(body: string): void;
 }
 
 export abstract class ResponseCookies {
