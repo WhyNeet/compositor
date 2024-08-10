@@ -1,8 +1,7 @@
 import { HttpMethod, Protocol } from "../types";
 
 export abstract class HttpRequest {
-  // biome-ignore lint/complexity/noBannedTypes: string or any json object
-  abstract body: string | Object;
+  abstract body: RequestBody;
   abstract cookies: Map<string | symbol, unknown>;
   abstract headers: Map<string | symbol, unknown>;
   abstract fresh: boolean;
@@ -18,8 +17,13 @@ export abstract class HttpRequest {
   abstract subdomains: string[];
   abstract xhr: boolean;
 
-  abstract accepts(type: string | string[]): string | undefined;
-  abstract acceptsCharsets(charsets: string[]): string | undefined;
-  abstract acceptsEncodings(encodings: string[]): string | undefined;
-  abstract acceptsLanguages(languages: string[]): string | undefined;
+  abstract accepts(type: string | string[]): string | null;
+  abstract acceptsCharsets(charsets: string[]): string | null;
+  abstract acceptsEncodings(encodings: string[]): string | null;
+  abstract acceptsLanguages(languages: string[]): string | null;
+}
+
+export abstract class RequestBody {
+  abstract text(): string | null;
+  abstract json<T extends Record<string, unknown>>(): T | null;
 }
