@@ -26,10 +26,10 @@ export class DefaultHttpResponseBody extends ResponseBody {
 }
 
 export class DefaultHttpResponseHeaders extends ResponseHeaders {
-  append(name: string | symbol, value: string | string[]): void {
+  append(name: string, value: string | string[]): void {
     throw new Error("Method not implemented.");
   }
-  get(name: string | symbol): string | string[] {
+  get(name: string): string | string[] {
     throw new Error("Method not implemented.");
   }
 }

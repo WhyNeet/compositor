@@ -7,8 +7,8 @@ export abstract class HttpResponse {
 }
 
 export abstract class ResponseHeaders {
-  abstract append(name: string | symbol, value: string | string[]): void;
-  abstract get(name: string | symbol): string | string[];
+  abstract append(name: string, value: string | string[]): void;
+  abstract get(name: string): string | string[];
 }
 
 export abstract class ResponseBody {
