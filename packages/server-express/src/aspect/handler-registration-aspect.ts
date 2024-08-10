@@ -10,12 +10,14 @@ import { HttpMethod } from "@compositor/http";
 import { Request, Response } from "express";
 import { Server } from "../decorator";
 import { ServerBean } from "../server";
+import { RequestMapper } from "../server/request-mapper";
 
 @Bean()
 export class HandlerRegistrationAspect {
   constructor(
     @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
     @Server() private server: ServerBean,
+    private requestMapper: RequestMapper,
   ) {
     metadataProcessor.addHandler(
       APP_METADATA_KEY.APPLICATION_CONTROLLER,
@@ -51,10 +53,12 @@ export class HandlerRegistrationAspect {
       }));
 
     for (const { handler, method, path } of handlers) {
-      const expressHandler = (req: Request, res: Response) => {
-        handler(req, res);
+      const expressHandler = ((req: Request, res: Response) => {
+        const expressRequest = this.requestMapper.map(req);
+
+        handler(expressRequest, res);
         res.end();
-      };
+      }).bind(this);
 
       this.server.registerRoute(method, path, expressHandler);
     }
