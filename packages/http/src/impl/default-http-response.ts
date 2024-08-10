@@ -38,7 +38,7 @@ export class DefaultHttpResponseCookies extends ResponseCookies {
   set(name: string, value: string, options?: Partial<CookieOptions>): void {
     throw new Error("Method not implemented.");
   }
-  remove(name: string, options?: Partial<CookieOptions>): void {
+  remove(name: string): void {
     throw new Error("Method not implemented.");
   }
 }

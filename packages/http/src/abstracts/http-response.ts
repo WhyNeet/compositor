@@ -33,7 +33,7 @@ export abstract class ResponseCookies {
     options?: Partial<CookieOptions>,
   ): void;
 
-  abstract remove(name: string, options?: Partial<CookieOptions>): void;
+  abstract remove(name: string): void;
 }
 
 export interface CookieOptions {
