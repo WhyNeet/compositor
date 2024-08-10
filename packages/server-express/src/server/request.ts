@@ -39,8 +39,8 @@ export class ExpressRequest extends DefaultHttpRequest {
 }
 
 export class ExpressRequestBody extends DefaultRequestBody {
-  private _text: string | null;
-  private _json: Record<string, unknown> | null;
+  private _text: string | null = null;
+  private _json: Record<string, unknown> | null = null;
 
   constructor(body: unknown) {
     super();
