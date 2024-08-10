@@ -9,8 +9,7 @@ import {
 import { HttpMethod } from "@compositor/http";
 import { Request, Response } from "express";
 import { Server } from "../decorator";
-import { ServerBean } from "../server";
-import { RequestMapper } from "../server/request-mapper";
+import { RequestMapper, ServerBean } from "../server";
 
 @Bean()
 export class HandlerRegistrationAspect {
