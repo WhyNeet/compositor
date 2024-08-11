@@ -33,10 +33,20 @@ export class DefaultHttpRequest extends HttpRequest {
 }
 
 export class DefaultRequestBody extends RequestBody {
-  text(): string | null {
-    throw new Error("Method not implemented.");
+  private _text: string | null = null;
+  private _json: Record<string, unknown> | null = null;
+
+  constructor(body: unknown) {
+    super();
+    if (typeof body === "string") this._text = body;
+    else this._json = body as typeof this._json;
   }
+
+  text(): string | null {
+    return this._text;
+  }
+
   json<T extends Record<string, unknown>>(): T | null {
-    throw new Error("Method not implemented.");
+    return this._json as T;
   }
 }

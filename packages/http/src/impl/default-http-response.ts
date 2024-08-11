@@ -17,52 +17,84 @@ export class DefaultHttpResponse extends HttpResponse {
 }
 
 export class DefaultHttpResponseBody extends ResponseBody {
+  private _json: Record<string, unknown> | null = null;
+  private _text: string | null = null;
+
   json<T extends Record<string, unknown>>(body: T): void {
-    throw new Error("Method not implemented.");
+    this._json = body;
+    this._text = null;
   }
+
   text(body: string): void {
-    throw new Error("Method not implemented.");
+    this._text = body;
+    this._json = null;
+  }
+
+  public getJson() {
+    return this._json;
+  }
+
+  public getText() {
+    return this._text;
   }
 }
 
 export class DefaultHttpResponseHeaders extends ResponseHeaders {
-  getAll(): [string, string | string[]][] {
-    throw new Error("Method not implemented.");
-  }
-  append(name: string, value: string | string[]): void {
-    throw new Error("Method not implemented.");
-  }
+  private _headers: Map<string, string | string[]> = new Map();
+
   get(name: string): string | string[] {
-    throw new Error("Method not implemented.");
+    return this._headers.get(name);
+  }
+
+  append(name: string, value: string | string[]): void {
+    this._headers.set(name, value);
+  }
+
+  getAll(): [string, string | string[]][] {
+    return Array.from(this._headers.entries());
   }
 }
 
 export class DefaultHttpResponseCookies extends ResponseCookies {
-  getAll(): [string, { value: string; options?: Partial<CookieOptions> }][] {
-    throw new Error("Method not implemented.");
-  }
+  private _cookies: Map<
+    string,
+    { value: string; options?: Partial<CookieOptions> }
+  > = new Map();
+
   set(name: string, value: string, options?: Partial<CookieOptions>): void {
-    throw new Error("Method not implemented.");
+    this._cookies.set(name, { value, options });
   }
+
   remove(name: string): void {
-    throw new Error("Method not implemented.");
+    this._cookies.delete(name);
+  }
+
+  getAll(): [string, { value: string; options?: Partial<CookieOptions> }][] {
+    return Array.from(this._cookies.entries());
   }
 }
 
 export class DefaultHttpResponseContentType extends ResponseContentType {
+  private _type = "application/octet-stream";
+
   set(type: string): string {
-    throw new Error("Method not implemented.");
+    this._type = type;
+    return type;
   }
+
   get(): string {
-    throw new Error("Method not implemented.");
+    return this._type;
   }
 }
 
 export class DefaultHttpResponseStatus extends ResponseStatus {
-  set(status: number): void {
-    throw new Error("Method not implemented.");
-  }
+  private _status = 200;
+
   get(): number {
-    throw new Error("Method not implemented.");
+    return this._status;
+  }
+
+  set(status: number): void {
+    this._status = status;
   }
 }
