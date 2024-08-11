@@ -35,7 +35,7 @@ export class DefaultHttpResponseHeaders extends ResponseHeaders {
 }
 
 export class DefaultHttpResponseCookies extends ResponseCookies {
-  getAll(): [string, unknown][] {
+  getAll(): [string, { value: string; options?: Partial<CookieOptions> }][] {
     throw new Error("Method not implemented.");
   }
   set(name: string, value: string, options?: Partial<CookieOptions>): void {

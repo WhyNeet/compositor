@@ -35,7 +35,10 @@ export abstract class ResponseCookies {
 
   abstract remove(name: string): void;
 
-  abstract getAll(): [string, unknown][];
+  abstract getAll(): [
+    string,
+    { value: string; options?: Partial<CookieOptions> },
+  ][];
 }
 
 export interface CookieOptions {
