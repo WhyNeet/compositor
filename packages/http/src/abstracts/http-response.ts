@@ -34,6 +34,8 @@ export abstract class ResponseCookies {
   ): void;
 
   abstract remove(name: string): void;
+
+  abstract getAll(): [string, unknown][];
 }
 
 export interface CookieOptions {
