@@ -16,5 +16,8 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
+  },
+  "dependencies": {
+    "@compositor/core": "workspace:^"
   }
 }
