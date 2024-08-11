@@ -67,7 +67,7 @@ export class ExpressResponseContentType extends DefaultHttpResponseContentType {
 export class ExpressResponseCookies extends DefaultHttpResponseCookies {
   private _cookies: Map<
     string,
-    { value: string; options: Partial<CookieOptions> }
+    { value: string; options?: Partial<CookieOptions> }
   > = new Map();
 
   set(name: string, value: string, options?: Partial<CookieOptions>): void {
@@ -78,7 +78,7 @@ export class ExpressResponseCookies extends DefaultHttpResponseCookies {
     this._cookies.delete(name);
   }
 
-  getAll(): [string, unknown][] {
+  getAll(): [string, { value: string; options?: Partial<CookieOptions> }][] {
     return Array.from(this._cookies.entries());
   }
 }
@@ -92,6 +92,10 @@ export class ExpressResponseHeaders extends DefaultHttpResponseHeaders {
 
   append(name: string, value: string | string[]): void {
     this._headers.set(name, value);
+  }
+
+  getAll(): [string, string | string[]][] {
+    return Array.from(this._headers.entries());
   }
 }
 

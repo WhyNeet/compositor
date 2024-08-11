@@ -26,6 +26,9 @@ export class DefaultHttpResponseBody extends ResponseBody {
 }
 
 export class DefaultHttpResponseHeaders extends ResponseHeaders {
+  getAll(): [string, string | string[]][] {
+    throw new Error("Method not implemented.");
+  }
   append(name: string, value: string | string[]): void {
     throw new Error("Method not implemented.");
   }
