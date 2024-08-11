@@ -6,18 +6,29 @@ import {
   MetadataProcessor,
   MetadataProcessorBean,
 } from "@compositor/core";
-import { HttpMethod } from "@compositor/http";
-import { Request, Response } from "express";
-import { Server } from "../decorator";
-import { RequestMapper, ResponseMapper, ServerBean } from "../server";
+import {
+  DefaultHttpRequest,
+  DefaultHttpResponse,
+  HttpMethod,
+} from "@compositor/http";
+import { HttpMapper } from "../../abstracts";
+import {
+  HttpRouter,
+  RequestMapper,
+  ResponseMapper,
+  Server,
+} from "../../decorators";
+import { Router } from "../router";
 
 @Bean()
 export class HandlerRegistrationAspect {
   constructor(
     @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
-    @Server() private server: ServerBean,
-    private requestMapper: RequestMapper,
-    private responseMapper: ResponseMapper,
+    @HttpRouter() private router: Router,
+    @RequestMapper()
+    private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
+    @ResponseMapper()
+    private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
   ) {
     metadataProcessor.addHandler(
       APP_METADATA_KEY.APPLICATION_CONTROLLER,
@@ -61,7 +72,7 @@ export class HandlerRegistrationAspect {
         this.responseMapper.mapback(expressResponse);
       }).bind(this);
 
-      this.server.registerRoute(method, path, expressHandler);
+      this.router.registerHandler(method, path, expressHandler);
     }
   }
 }

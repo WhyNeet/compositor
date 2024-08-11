@@ -1,10 +1,10 @@
 import { Bean } from "@compositor/core";
-import { HttpMethod, Protocol } from "@compositor/http";
+import { HttpMapper, HttpMethod, Protocol } from "@compositor/http";
 import { Request } from "express";
 import { ExpressRequest, ExpressRequestBody } from "./request";
 
 @Bean()
-export class RequestMapper {
+export class RequestMapper implements HttpMapper<Request, ExpressRequest> {
   public map(request: Request): ExpressRequest {
     const expressRequest = new ExpressRequest(request);
 
@@ -33,5 +33,9 @@ export class RequestMapper {
     expressRequest.xhr = request.xhr;
 
     return expressRequest;
+  }
+
+  public mapback(from: ExpressRequest): Request {
+    throw new Error("Express request cannot be mapped back.");
   }
 }

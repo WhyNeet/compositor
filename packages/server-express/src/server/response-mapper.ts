@@ -1,4 +1,5 @@
 import { Bean } from "@compositor/core";
+import { HttpMapper } from "@compositor/http";
 import { Response } from "express";
 import {
   ExpressResponse,
@@ -10,7 +11,7 @@ import {
 } from "./response";
 
 @Bean()
-export class ResponseMapper {
+export class ResponseMapper implements HttpMapper<Response, ExpressResponse> {
   public map(response: Response): ExpressResponse {
     const expressResponse = new ExpressResponse(response);
 
@@ -23,7 +24,7 @@ export class ResponseMapper {
     return expressResponse;
   }
 
-  public mapback(expressResponse: ExpressResponse) {
+  public mapback(expressResponse: ExpressResponse): Response {
     const response = expressResponse.inner();
 
     for (const [name, { value, options }] of expressResponse.cookies.getAll())
@@ -38,5 +39,7 @@ export class ResponseMapper {
     if (expressResponse.body.getJson())
       response.json(expressResponse.body.getJson());
     else response.send(expressResponse.body.getText());
+
+    return response;
   }
 }

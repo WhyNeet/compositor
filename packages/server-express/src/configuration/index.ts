@@ -1,2 +1,1 @@
-export * from "./root-configuration";
-export * from "./server-configuration";
+export * from "./platform-configuration";

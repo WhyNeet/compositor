@@ -1,57 +1,35 @@
+import { Bean } from "@compositor/core";
 import {
-  ApplicationContext,
-  Bean,
-  ContainerEvent,
-  Context,
-  EventListener,
-} from "@compositor/core";
-import { HttpMethod } from "@compositor/http";
-import express, {
-  Express,
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-  NextFunction,
-} from "express";
+  GenericHttpRequest,
+  HttpServer,
+  HttpServerConfiguration,
+} from "@compositor/http";
+import express, { Express } from "express";
 
 @Bean()
-export class ServerBean {
+export class ServerBean implements HttpServer {
   private _app: Express;
+  private _conf: HttpServerConfiguration;
 
-  constructor(@Context() private context: ApplicationContext) {
+  constructor() {
     this._app = express();
+  }
 
-    this.context.containerEvents().subscribe(
-      ContainerEvent.CONTAINER_BOOTSTRAPPED,
-      (
-        ((data) => {
-          this.launch(8080, "127.0.0.1", () => {
-            console.log("LAUNCHED EXPRESS SERVER:", "http://127.0.0.1:8080");
-          });
-        }) as EventListener
-      ).bind(this),
+  configure(configuration: HttpServerConfiguration): void {
+    this._conf = configuration;
+  }
+
+  mount(
+    handler: (request: GenericHttpRequest, response: unknown) => void,
+  ): void {
+    this._app.all("/*", handler);
+  }
+
+  public launch() {
+    this._app.listen(
+      this._conf.port,
+      this._conf.hostname,
+      this._conf.launchCallback,
     );
-  }
-
-  public registerMiddleware(
-    middleware: (
-      req: ExpressRequest,
-      res: ExpressResponse,
-      next: NextFunction,
-    ) => void,
-    path?: string,
-  ) {
-    path ? this._app.use(path, middleware) : this._app.use(middleware);
-  }
-
-  public registerRoute(
-    method: HttpMethod,
-    path: string,
-    handler: (req: ExpressRequest, res: ExpressResponse) => void,
-  ) {
-    this._app[method.toLowerCase()](path, handler);
-  }
-
-  public launch(port: number, hostname: string, callback?: () => void) {
-    this._app.listen(port, hostname, callback);
   }
 }
