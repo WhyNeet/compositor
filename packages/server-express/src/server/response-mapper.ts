@@ -12,7 +12,7 @@ import {
 @Bean()
 export class ResponseMapper {
   public map(response: Response): ExpressResponse {
-    const expressResponse = new ExpressResponse();
+    const expressResponse = new ExpressResponse(response);
 
     expressResponse.body = new ExpressResponseBody();
     expressResponse.contentType = new ExpressResponseContentType();
@@ -21,5 +21,22 @@ export class ResponseMapper {
     expressResponse.status = new ExpressResponseStatus();
 
     return expressResponse;
+  }
+
+  public mapback(expressResponse: ExpressResponse) {
+    const response = expressResponse.inner();
+
+    for (const [name, { value, options }] of expressResponse.cookies.getAll())
+      response.cookie(name, value, options);
+
+    for (const [name, value] of expressResponse.headers.getAll())
+      response.header(name, value);
+
+    response.contentType(expressResponse.contentType.get());
+    response.status(expressResponse.status.get());
+
+    if (expressResponse.body.getJson())
+      response.json(expressResponse.body.getJson());
+    else response.send(expressResponse.body.getText());
   }
 }

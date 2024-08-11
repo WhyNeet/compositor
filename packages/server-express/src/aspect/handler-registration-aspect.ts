@@ -58,7 +58,7 @@ export class HandlerRegistrationAspect {
         const expressResponse = this.responseMapper.map(res);
 
         handler(expressRequest, expressResponse);
-        res.end();
+        this.responseMapper.mapback(expressResponse);
       }).bind(this);
 
       this.server.registerRoute(method, path, expressHandler);
