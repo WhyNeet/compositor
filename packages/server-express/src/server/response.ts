@@ -7,8 +7,20 @@ import {
   DefaultHttpResponseHeaders,
   DefaultHttpResponseStatus,
 } from "@compositor/http";
+import { Response } from "express";
 
 export class ExpressResponse extends DefaultHttpResponse {
+  private _inner: Response;
+
+  constructor(response: Response) {
+    super();
+    this._inner = response;
+  }
+
+  public inner() {
+    return this._inner;
+  }
+
   body: ExpressResponseBody;
   contentType: ExpressResponseContentType;
   cookies: ExpressResponseCookies;
@@ -54,7 +66,7 @@ export class ExpressResponseContentType extends DefaultHttpResponseContentType {
 
 export class ExpressResponseCookies extends DefaultHttpResponseCookies {
   private _cookies: Map<
-    string | symbol,
+    string,
     { value: string; options: Partial<CookieOptions> }
   > = new Map();
 
@@ -64,6 +76,10 @@ export class ExpressResponseCookies extends DefaultHttpResponseCookies {
 
   remove(name: string): void {
     this._cookies.delete(name);
+  }
+
+  getAll(): [string, unknown][] {
+    return Array.from(this._cookies.entries());
   }
 }
 
