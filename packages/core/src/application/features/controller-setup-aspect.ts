@@ -55,7 +55,7 @@ export class ControllerSetupAspect {
         args[index] = factory(request, response);
       }
 
-      handler(...args);
+      handler.bind(wrapper.getInstance())(...args);
     };
   }
 
