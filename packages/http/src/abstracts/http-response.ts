@@ -49,8 +49,20 @@ export interface CookieOptions {
   maxAge: number;
   path: string;
   partitioned: boolean;
-  priority: string;
+  priority: Priority;
   secure: boolean;
   signed: boolean;
-  sameSite: boolean | string;
+  sameSite: SameSite;
+}
+
+export enum SameSite {
+  Lax = "lax",
+  Strict = "strict",
+  None = "none",
+}
+
+export enum Priority {
+  Low = "low",
+  Medium = "medium",
+  High = "high",
 }
