@@ -1,15 +1,17 @@
 import { Bean } from "@compositor/core";
 import { HttpServerConfiguration } from "../../abstracts";
 
-@Bean()
 export class HttpConfigurationHolder {
-  constructor(public server: HttpServerConfiguration | null) {}
+  public server: HttpServerConfiguration | null;
 
   public static with(configs: { server: HttpServerConfiguration | null }) {
-    return class extends HttpConfigurationHolder {
+    const ctor = class extends HttpConfigurationHolder {
       constructor() {
-        super(configs.server);
+        super();
+        this.server = configs.server;
       }
     };
+
+    return Bean()(ctor);
   }
 }
