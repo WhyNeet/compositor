@@ -21,15 +21,18 @@ export class BeanInstanceRegistry {
     return this._registry.get(token);
   }
 
-  public instantiate(definitions: Map<InjectionToken, AnyBeanDefinition>) {
+  public instantiate(
+    definitions: Map<InjectionToken, AnyBeanDefinition>,
+    subset?: InjectionToken[],
+  ) {
     this._definitions = definitions;
 
-    this.instantiateBeans();
+    this.instantiateBeans(subset ? new Set(subset) : undefined);
   }
 
-  private instantiateBeans() {
-    for (const [_, definition] of this._definitions) {
-      this.instantiateBean(definition);
+  private instantiateBeans(subset?: Set<InjectionToken>) {
+    for (const [token, definition] of this._definitions) {
+      if (!subset || subset.has(token)) this.instantiateBean(definition);
     }
   }
 

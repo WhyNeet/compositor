@@ -3,6 +3,7 @@ import { InjectionToken } from "../injection-token";
 
 export class BeanDefinitionRegistry {
   private _registry: Map<InjectionToken, AnyBeanDefinition>;
+  private _diff = [];
 
   constructor() {
     this._registry = new Map();
@@ -10,6 +11,7 @@ export class BeanDefinitionRegistry {
 
   public put(definition: AnyBeanDefinition) {
     this._registry.set(definition.getToken(), definition);
+    this._diff.push(definition.getToken());
   }
 
   public get(token: InjectionToken) {
@@ -21,9 +23,11 @@ export class BeanDefinitionRegistry {
   }
 
   public resolveDependencies() {
-    for (const [token, _] of this._registry) {
-      this.resolveDefinitionDependencies(token);
-    }
+    const resolved = this._diff.map((token) =>
+      this.resolveDefinitionDependencies(token),
+    );
+    this._diff = [];
+    return resolved;
   }
 
   private resolveDefinitionDependencies(

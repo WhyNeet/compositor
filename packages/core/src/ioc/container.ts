@@ -13,6 +13,7 @@ export class Container {
   constructor() {
     this._beanDefinitionRegistry = new BeanDefinitionRegistry();
     this._events = new ContainerEvents();
+    this._beanInstanceRegistry = new BeanInstanceRegistry(this._events);
   }
 
   public registerCtor(token: InjectionToken, ctor: Ctor) {
@@ -39,13 +40,17 @@ export class Container {
     return this._beanInstanceRegistry.getBean(token).getInstance();
   }
 
-  public bootstrap() {
-    this._beanDefinitionRegistry.resolveDependencies();
+  public wire() {
+    const defs = this._beanDefinitionRegistry.resolveDependencies();
 
-    this._beanInstanceRegistry = new BeanInstanceRegistry(this._events);
     this._beanInstanceRegistry.instantiate(
       this._beanDefinitionRegistry.getAllMapped(),
+      defs.map((def) => def.getToken()),
     );
+  }
+
+  public bootstrap() {
+    this.wire();
 
     this._events.emit(
       constructEventData(ContainerEvent.CONTAINER_BOOTSTRAPPED),
