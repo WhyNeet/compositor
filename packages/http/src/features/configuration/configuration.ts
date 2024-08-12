@@ -22,16 +22,24 @@ export class HttpConfiguration extends Configuration {
   }
 
   configure(cx: ConfigurationContext): void {
-    cx.registerCtor(TOKEN.SERVER, this.platform.serverClass());
-    cx.registerCtor(TOKEN.REQUEST_MAPPER, this.platform.mappers().request());
-    cx.registerCtor(TOKEN.RESPONSE_MAPPER, this.platform.mappers().response());
-    cx.registerCtor(TOKEN.ROUTER, Router);
-    cx.registerCtor(
-      TOKEN.CONFIGURATION,
-      HttpConfigurationHolder.with({ server: this.serverConfiguration }),
-    );
-    cx.registerCtor(HandlerRegistrationAspect);
-    cx.registerCtor(HttpStarter);
+    cx.register({ token: TOKEN.SERVER, bean: this.platform.serverClass() })
+      .register({
+        token: TOKEN.REQUEST_MAPPER,
+        bean: this.platform.mappers().request(),
+      })
+      .register({
+        token: TOKEN.RESPONSE_MAPPER,
+        bean: this.platform.mappers().response(),
+      })
+      .register({ token: TOKEN.ROUTER, bean: Router })
+      .register({
+        token: TOKEN.CONFIGURATION,
+        bean: HttpConfigurationHolder.with({
+          server: this.serverConfiguration,
+        }),
+      })
+      .register({ bean: HandlerRegistrationAspect })
+      .register({ bean: HttpStarter });
   }
 }
 
