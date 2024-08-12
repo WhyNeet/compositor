@@ -10,6 +10,7 @@ export class Container {
   private _beanDefinitionRegistry: BeanDefinitionRegistry;
   private _beanInstanceRegistry: BeanInstanceRegistry;
   private _events: ContainerEvents;
+  private _isBootstrapped = false;
 
   constructor() {
     this._beanDefinitionRegistry = new BeanDefinitionRegistry();
@@ -22,6 +23,8 @@ export class Container {
       this.registerFactory(entity.token, entity.factory);
     else if (entity.token) this.registerCtor(entity.token, entity.bean);
     else this.registerCtor(getCtorToken(entity.bean), entity.bean);
+
+    if (this._isBootstrapped) this.wire();
 
     return this;
   }
@@ -71,6 +74,7 @@ export class Container {
     this._events.emit(
       constructEventData(ContainerEvent.CONTAINER_BOOTSTRAPPED),
     );
+    this._isBootstrapped = true;
   }
 }
 export type RegistrationEntity<T extends Ctor> =
