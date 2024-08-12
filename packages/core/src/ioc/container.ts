@@ -1,3 +1,4 @@
+import { getCtorToken } from "../application/util";
 import { BeanDefinition } from "./bean/bean-definition";
 import { ContainerEvent, ContainerEvents, constructEventData } from "./events";
 import { EventSubscriber } from "./events/event-subscriber";
@@ -16,7 +17,22 @@ export class Container {
     this._beanInstanceRegistry = new BeanInstanceRegistry(this._events);
   }
 
-  public registerCtor(token: InjectionToken, ctor: Ctor) {
+  public register<T extends Ctor>(entity: RegistrationEntity<T>) {
+    if (this.isFactoryEntity(entity))
+      this.registerFactory(entity.token, entity.factory);
+    else if (entity.token) this.registerCtor(entity.token, entity.bean);
+    else this.registerCtor(getCtorToken(entity.bean), entity.bean);
+
+    return this;
+  }
+
+  private isFactoryEntity<T extends Ctor>(
+    entity: RegistrationEntity<T>,
+  ): entity is { factory: () => unknown; token: InjectionToken } {
+    return (entity as { factory: unknown }).factory !== undefined;
+  }
+
+  private registerCtor(token: InjectionToken, ctor: Ctor) {
     const definition = BeanDefinition.class(token, ctor);
     this._events.emit(
       constructEventData(ContainerEvent.BEAN_DEFINED, definition),
@@ -24,7 +40,7 @@ export class Container {
     this._beanDefinitionRegistry.put(definition);
   }
 
-  public registerFactory(token: InjectionToken, factory: () => unknown) {
+  private registerFactory(token: InjectionToken, factory: () => unknown) {
     const definition = BeanDefinition.factory(token, factory);
     this._events.emit(
       constructEventData(ContainerEvent.BEAN_DEFINED, definition),
@@ -57,3 +73,6 @@ export class Container {
     );
   }
 }
+export type RegistrationEntity<T extends Ctor> =
+  | { factory: () => unknown; token: InjectionToken }
+  | { token?: InjectionToken; bean: T };

@@ -1,4 +1,4 @@
-import { Ctor, InjectionToken } from "../../ioc";
+import { Ctor, InjectionToken, RegistrationEntity } from "../../ioc";
 import { Configuration } from "../configuration";
 import { ApplicationContext } from "./context";
 
@@ -26,22 +26,8 @@ export class ConfigurationContext {
   }
 
   public register<Bean extends Ctor>(entity: RegistrationEntity<Bean>) {
-    if (this.isFactoryEntity(entity))
-      this._context.registerFactory(entity.token, entity.factory);
-    else if (entity.token)
-      this._context.registerCtor(entity.token, entity.bean);
-    else this._context.registerCtor(entity.bean);
+    this._context.register(entity);
 
     return this;
   }
-
-  private isFactoryEntity<Bean extends Ctor>(
-    entity: RegistrationEntity<Bean>,
-  ): entity is { factory: () => unknown; token: InjectionToken } {
-    return (entity as { factory: unknown }).factory !== undefined;
-  }
 }
-
-export type RegistrationEntity<Bean extends Ctor> =
-  | { factory: () => unknown; token: InjectionToken }
-  | { token?: InjectionToken; bean: Bean };

@@ -3,7 +3,6 @@ import {
   AnyBeanWrapper,
   Bean,
   ContainerEvent,
-  Ctor,
 } from "../../ioc";
 import { ApplicationContext } from "../context";
 import { Context } from "../decorator";

@@ -1,5 +1,4 @@
 import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../ioc";
-import { METADATA_KEY as IOC_METADATA_KEY } from "../../ioc";
 import { METADATA_KEY } from "../constants";
 import { ApplicationContext } from "../context";
 import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";

@@ -1,45 +1,32 @@
-import { Container, Ctor, InjectionToken, METADATA_KEY } from "../../ioc";
+import { Container, Ctor, InjectionToken, RegistrationEntity } from "../../ioc";
 import { ControllerSetupAspect, MetadataProcessorBean } from "../features";
 import { APPLICATION_TOKEN } from "../tokens";
-import { getCtorToken } from "../util";
 
 export class ApplicationContext {
   private _container: Container;
 
   constructor(container: Container) {
     this._container = container;
-    this._container.registerFactory(
-      APPLICATION_TOKEN.APPLICATION_CONTEXT,
-      () => this,
-    );
-    this.registerCtor(
-      APPLICATION_TOKEN.METADATA_PROCESSOR,
-      MetadataProcessorBean,
-    );
-    this.registerCtor(
-      APPLICATION_TOKEN.CONTROLLER_SETUP_ASPECT,
-      ControllerSetupAspect,
-    );
+    this.register({
+      token: APPLICATION_TOKEN.APPLICATION_CONTEXT,
+      factory: () => this,
+    });
+    this.register({
+      token: APPLICATION_TOKEN.METADATA_PROCESSOR,
+      bean: MetadataProcessorBean,
+    });
+    this.register({
+      token: APPLICATION_TOKEN.CONTROLLER_SETUP_ASPECT,
+      bean: ControllerSetupAspect,
+    });
   }
 
   public containerEvents() {
     return this._container.events();
   }
 
-  public registerFactory(token: InjectionToken, factory: () => unknown) {
-    this._container.registerFactory(token, factory);
-  }
-
-  public registerCtor(token: InjectionToken, ctor: Ctor): void;
-  public registerCtor(ctor: Ctor): void;
-
-  public registerCtor(tokenOrCtor: InjectionToken | Ctor, ctor?: Ctor): void {
-    if (ctor) this._container.registerCtor(tokenOrCtor as InjectionToken, ctor);
-    else
-      this._container.registerCtor(
-        getCtorToken(tokenOrCtor as Ctor),
-        tokenOrCtor as Ctor,
-      );
+  public register<Bean extends Ctor>(entity: RegistrationEntity<Bean>) {
+    this._container.register(entity);
   }
 
   public getBean<T>(token: InjectionToken): T {
