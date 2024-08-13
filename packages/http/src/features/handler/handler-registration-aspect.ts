@@ -56,11 +56,6 @@ export class HandlerRegistrationAspect {
           def.getClass(),
           key,
         ) as unknown[],
-      }))
-      .map(({ handler, path }) => ({
-        handler,
-        method: path[0] as HttpMethod,
-        path: path.slice(1).join("/"),
       }));
 
     for (const { handler, method, path } of handlers) {
