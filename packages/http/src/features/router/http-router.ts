@@ -1,6 +1,10 @@
 import { Bean } from "@compositor/core";
 import { GenericHttpRequest } from "../../abstracts";
 import { HttpMethod } from "../../types";
+import { PathTrie } from "./path-trie";
+
+// biome-ignore lint/suspicious/noExplicitAny: suppress type errors
+export type HttpHandler = (request: any, response: any) => void;
 
 @Bean()
 export class Router {
@@ -22,8 +26,7 @@ export class Router {
   public registerHandler(
     method: HttpMethod,
     path: string,
-    // biome-ignore lint/suspicious/noExplicitAny: suppress type errors
-    handler: (request: any, response: any) => void,
+    handler: HttpHandler,
   ) {
     if (this._mapping.has(path))
       this._mapping.set(path, [...this._mapping.get(path), [method, handler]]);
