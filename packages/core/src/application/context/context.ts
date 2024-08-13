@@ -1,6 +1,7 @@
 import { Container, Ctor, InjectionToken, RegistrationEntity } from "../../ioc";
 import { APPLICATION_TOKEN } from "../constants";
 import { ControllerSetupAspect, MetadataProcessorBean } from "../features";
+import { HandlerSetupBean } from "../features/handler-setup";
 
 export class ApplicationContext {
   private _container: Container;
@@ -19,6 +20,7 @@ export class ApplicationContext {
       token: APPLICATION_TOKEN.CONTROLLER_SETUP_ASPECT,
       bean: ControllerSetupAspect,
     });
+    this.register({ bean: HandlerSetupBean });
   }
 
   public containerEvents() {
