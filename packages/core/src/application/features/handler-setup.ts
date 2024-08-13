@@ -5,6 +5,9 @@ import { Context, ProvisionedFactory } from "../decorator";
 import { getCtorToken } from "../util";
 import { Middleware } from "./middleware";
 
+export type HandlerPath = (string | HandlerPathEntity | HandlerPath)[];
+export type HandlerPathEntity = { token: unknown; data: unknown };
+
 @Bean()
 export class HandlerSetupBean {
   constructor(@Context() private context: ApplicationContext) {}

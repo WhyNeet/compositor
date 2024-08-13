@@ -1,12 +1,13 @@
 import { METADATA_KEY } from "../constants";
+import { HandlerPath } from "../features/handler-setup";
 
-export function Handler(...path: unknown[]) {
+export function Handler(...path: HandlerPath) {
   return function (
     // biome-ignore lint/complexity/useArrowFunction: not using arrow function
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
     propertyKey: string,
-    descriptor: PropertyDescriptor,
+    _descriptor: PropertyDescriptor,
   ) {
     Reflect.defineMetadata(
       METADATA_KEY.CONTROLLER_HANDLER,
