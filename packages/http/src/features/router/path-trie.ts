@@ -1,5 +1,5 @@
 import { HandlerPath, HandlerPathEntity } from "@compositor/core";
-import { PathToken, or, wildcard } from "../handler";
+import { PathToken, __internal_joinPoint, or, wildcard } from "../handler";
 import { HttpHandler } from "./http-router";
 
 export class PathTrie {
@@ -9,6 +9,29 @@ export class PathTrie {
     const root = new PathTrieNode();
     this._root = root;
   }
+
+  public addPath(path: HandlerPath, handler: HttpHandler) {
+    const pathRoot = this.pathConstruct(path, handler);
+
+    // edge case: the PathTrie root does not have value
+    // in case it does not have the child node similar to pathRoot
+    // simply append the path root
+    const nextNode = this._root
+      .getChildren()
+      .find((node) => node.equal(pathRoot));
+    if (!nextNode) return this._root.addChild(pathRoot);
+
+    // this.pathTrieUnion(pathRoot, nextNode);
+  }
+
+  // private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
+  //   if (
+  //     typeof path.value() === "string" ||
+  //     (path.value() as HandlerPathEntity).token !== PathToken.Or
+  //   ) {
+  //     const childNode =
+  //   }
+  // }
 
   public pathConstruct(
     path: HandlerPath,
@@ -49,10 +72,25 @@ export class PathTrie {
     const childNodes = childSegments.map((path) =>
       this.pathConstruct(path, null),
     );
+    // append a JoinPoint token after all Or branches
+    const joinPoint = new PathTrieNode();
+    joinPoint.setValue(__internal_joinPoint());
     // iterate through the array of child nodes of an Or segment
     // append nodes to the child nodes array
-    for (const node of childNodes) if (node) pathNode.addChild(node);
+    for (const node of childNodes) {
+      if (!node) continue;
+      const finalPathNode = this.getFinalNode(node);
+      finalPathNode.addChild(joinPoint);
+      pathNode.addChild(node);
+    }
+    // append the remaining path nodes to the join point
+    joinPoint.addChild(this.pathConstruct(path, handler, current + 1));
     return pathNode;
+  }
+
+  private getFinalNode(node: PathTrieNode): PathTrieNode {
+    if (node.getChildren().length === 0) return node;
+    return this.getFinalNode(node.getChildren()[0]);
   }
 }
 
@@ -68,14 +106,18 @@ export class PathTrieNode {
     return this._value;
   }
 
-  public equal(other: string | HandlerPathEntity | HttpHandler) {
-    switch (typeof other) {
+  public equal(other: PathTrieNode) {
+    switch (typeof other.value()) {
       case "string":
-        return this._value === other;
+        return typeof this._value === "string" && this._value === other.value();
       case "function":
         return false;
       default:
-        return (this._value as HandlerPathEntity).token === other.token;
+        return (
+          typeof this._value === "object" &&
+          (this._value as HandlerPathEntity).token ===
+            (other.value() as HandlerPathEntity).token
+        );
     }
   }
 

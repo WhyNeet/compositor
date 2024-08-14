@@ -1,7 +1,6 @@
 import { Bean } from "@compositor/core";
 import { GenericHttpRequest } from "../../abstracts";
 import { HttpMethod } from "../../types";
-import { PathTrie } from "./path-trie";
 
 // biome-ignore lint/suspicious/noExplicitAny: suppress type errors
 export type HttpHandler = (request: any, response: any) => void;
