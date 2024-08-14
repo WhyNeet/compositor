@@ -1,5 +1,5 @@
 import { HandlerPath, HandlerPathEntity } from "@compositor/core";
-import { PathToken, wildcard } from "../handler";
+import { PathToken, or, wildcard } from "../handler";
 import { HttpHandler } from "./http-router";
 
 export class PathTrie {
@@ -7,56 +7,52 @@ export class PathTrie {
 
   constructor() {
     const root = new PathTrieNode();
-    root.setValue(wildcard());
     this._root = root;
   }
 
-  public addNode(path: HandlerPath, handler: HttpHandler) {
-    const add = (segmentIdx: number, root: PathTrieNode) => {
-      // the path is completely resolved, insert a handler in the current node
-      if (segmentIdx === path.length - 1) {
+  public pathConstruct(
+    path: HandlerPath,
+    // null value must be provided when resolving a subpath
+    handler: HttpHandler | null,
+    current = 0,
+  ): PathTrieNode | null {
+    if (current === path.length) {
+      if (handler) {
         const handlerNode = new PathTrieNode();
         handlerNode.setValue(handler);
-        root.addChild(handlerNode);
-        return;
+        return handlerNode;
       }
 
-      const segment = path[segmentIdx];
+      return null;
+    }
 
-      switch (typeof root.value()) {
-        case "string":
-          // path segments can only have 1 child node
-          if (root.getChildren().length === 0) {
-            const newNode = new PathTrieNode();
-            newNode.setValue(path[segmentIdx + 1]);
-            root.addChild(newNode);
-          }
-          add(segmentIdx + 1, root.getChildren()[0]);
-          break;
-        case "function":
-          break;
-        case "object":
-          switch ((root.value() as HandlerPathEntity).token) {
-            case PathToken.Wildcard:
-              // wildcard token can have multiple child nodes
-              if (root.getChildren().length === 0) {
-                const newNode = new PathTrieNode();
-                newNode.setValue(segment);
-                root.addChild(newNode);
-              }
-              add(
-                segmentIdx,
-                // search for the matching node
-                root
-                  .getChildren()
-                  .find((node) => node.equal(segment)),
-              );
-          }
-          break;
-      }
-    };
+    const segment = path[current];
 
-    add(0, this._root);
+    if (
+      typeof segment === "string" ||
+      (segment as HandlerPathEntity).token !== PathToken.Or
+    ) {
+      const pathNode = new PathTrieNode();
+      pathNode.setValue(segment);
+      // string segments can only have one child node
+      const childNode = this.pathConstruct(path, handler, current + 1);
+      if (childNode) pathNode.addChild(childNode);
+      return pathNode;
+    }
+
+    // construct an Or segment
+    const pathNode = new PathTrieNode();
+    pathNode.setValue(segment);
+    const childSegments = (segment as ReturnType<typeof or>)
+      .data as HandlerPath[];
+    // construct child paths, treating each path as new
+    const childNodes = childSegments.map((path) =>
+      this.pathConstruct(path, null),
+    );
+    // iterate through the array of child nodes of an Or segment
+    // append nodes to the child nodes array
+    for (const node of childNodes) if (node) pathNode.addChild(node);
+    return pathNode;
   }
 }
 
@@ -85,6 +81,14 @@ export class PathTrieNode {
 
   public addChild(node: PathTrieNode) {
     this._children.push(node);
+  }
+
+  public replaceChild(idx: number, node: PathTrieNode): PathTrieNode {
+    const current = this._value[idx];
+
+    this._value[idx] = node;
+
+    return current;
   }
 
   public getChildren() {

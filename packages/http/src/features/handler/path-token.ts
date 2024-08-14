@@ -12,7 +12,7 @@ export function method(method: HttpMethod): HandlerPathEntity {
   return { token: PathToken, data: method };
 }
 
-export function or(...paths: HandlerPath): HandlerPathEntity {
+export function or(...paths: HandlerPath[]): HandlerPathEntity {
   return { token: PathToken.Or, data: paths };
 }
 
