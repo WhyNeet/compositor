@@ -41,9 +41,9 @@ describe("Container", () => {
   });
 
   it("should wire beans correctly", () => {
-    container.registerCtor("A", A);
-    container.registerCtor("B", B);
-    container.registerCtor("C", C);
+    container.register({ bean: A });
+    container.register({ bean: B });
+    container.register({ bean: C });
 
     container.bootstrap();
   });
