@@ -1,12 +1,20 @@
-import { HandlerPath, HandlerPathEntity } from "@compositor/core";
+import {
+  HandlerPath,
+  HandlerPathEntity,
+  RawHandlerPath,
+} from "@compositor/core";
+import { HttpMethod } from "../../types";
 import {
   PathToken,
   __internal_branching,
   __internal_joinPoint,
   or,
-  wildcard,
 } from "../handler";
 import { HttpHandler } from "./http-router";
+
+export interface PathResolverMetadata {
+  method: HttpMethod;
+}
 
 export class PathTrie {
   private _root: PathTrieNode;
@@ -28,6 +36,64 @@ export class PathTrie {
     if (!nextNode) return this._root.addChild(pathRoot);
 
     this.pathTrieUnion(pathRoot, nextNode);
+  }
+
+  public resolvePath(
+    path: RawHandlerPath,
+    metadata: PathResolverMetadata,
+  ): HttpHandler | null {
+    const nextNode = this._root
+      .getChildren()
+      .find((node) => node.match(path[0], metadata));
+    const handlerNode = this.searchPath(path, nextNode, metadata);
+
+    if (!handlerNode) return null;
+    return handlerNode.getChildren()[0].value() as HttpHandler;
+  }
+
+  private searchPath(
+    path: RawHandlerPath,
+    root: PathTrieNode,
+    metadata: PathResolverMetadata,
+  ): PathTrieNode | null {
+    let current = 0;
+    let currentNode = root;
+
+    while (current < path.length) {
+      const first = currentNode.getChildren()[0].valueAsToken();
+
+      if (first && first.token === PathToken.Wildcard && first.data === true) {
+        // a multi-segment wildcard
+        // search for the correct next segment
+        // let nextIdx = current;
+        // const nextNode = currentNode.getChildren()[0].getChildren()[0]
+        // while (nextIdx < path.length) {
+        //   nextIdx += 1;
+        // }
+      }
+
+      if (
+        first &&
+        [PathToken.Branching, PathToken.Or, PathToken.JoinPoint].includes(
+          first.token as PathToken,
+        )
+      ) {
+        currentNode = currentNode.getChildren()[0];
+        current += 1;
+        continue;
+      }
+
+      const nextNode = currentNode
+        .getChildren()
+        .find((node) => node.match(path[current], metadata));
+      if (!nextNode) return null;
+      current += 1;
+      currentNode = nextNode;
+    }
+
+    if (typeof currentNode.getChildren()[0].value() === "function")
+      return currentNode;
+    return null;
   }
 
   private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
@@ -152,6 +218,11 @@ export class PathTrieNode {
     return this._value;
   }
 
+  public valueAsToken() {
+    if (typeof this.value() !== "string" && typeof this.value() !== "function")
+      return this.value() as HandlerPathEntity;
+  }
+
   public equal(other: PathTrieNode) {
     switch (typeof other.value()) {
       case "string":
@@ -166,6 +237,24 @@ export class PathTrieNode {
           (this._value as HandlerPathEntity).data ===
             (other.value() as HandlerPathEntity).data
         );
+    }
+  }
+
+  public match(other: string, metadata: PathResolverMetadata) {
+    if (typeof this.value() === "string") {
+      return this.value() === other;
+    }
+
+    if (typeof this.value() === "function") return false;
+
+    switch ((this.value() as HandlerPathEntity).token) {
+      case PathToken.Param:
+      case PathToken.Wildcard:
+        return true;
+      case PathToken.Method:
+        return (this.value() as HandlerPathEntity).data === metadata.method;
+      default:
+        return false;
     }
   }
 
