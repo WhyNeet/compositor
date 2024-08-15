@@ -8,6 +8,8 @@ import { Middleware } from "./middleware";
 export type HandlerPath = (string | HandlerPathEntity)[];
 export type HandlerPathEntity = { token: unknown; data: unknown };
 
+export type RawHandlerPath = string[];
+
 @Bean()
 export class HandlerSetupBean {
   constructor(@Context() private context: ApplicationContext) {}
