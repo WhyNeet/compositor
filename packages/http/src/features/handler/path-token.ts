@@ -7,6 +7,7 @@ export enum PathToken {
   Param = "PARAM",
   Wildcard = "WILDCARD",
   JoinPoint = "JOIN_POINT",
+  Branching = "BRANCHING",
 }
 
 export function method(method: HttpMethod): HandlerPathEntity {
@@ -27,4 +28,8 @@ export function wildcard(double = false): HandlerPathEntity {
 
 export function __internal_joinPoint(): HandlerPathEntity {
   return { token: PathToken.JoinPoint, data: null };
+}
+
+export function __internal_branching(): HandlerPathEntity {
+  return { token: PathToken.Branching, data: null };
 }

@@ -1,5 +1,11 @@
 import { HandlerPath, HandlerPathEntity } from "@compositor/core";
-import { PathToken, __internal_joinPoint, or, wildcard } from "../handler";
+import {
+  PathToken,
+  __internal_branching,
+  __internal_joinPoint,
+  or,
+  wildcard,
+} from "../handler";
 import { HttpHandler } from "./http-router";
 
 export class PathTrie {
@@ -21,19 +27,59 @@ export class PathTrie {
       .find((node) => node.equal(pathRoot));
     if (!nextNode) return this._root.addChild(pathRoot);
 
-    // this.pathTrieUnion(pathRoot, nextNode);
+    this.pathTrieUnion(pathRoot, nextNode);
   }
 
-  // private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
-  //   if (
-  //     typeof path.value() === "string" ||
-  //     (path.value() as HandlerPathEntity).token !== PathToken.Or
-  //   ) {
-  //     const childNode =
-  //   }
-  // }
+  private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
+    if (
+      typeof path.value() === "string" ||
+      (path.value() as HandlerPathEntity).token !== PathToken.Or
+    ) {
+      const childNode = path.getChildren()[0];
+      const next = root.getChildren()[0];
+      if (
+        !next.equal(childNode) &&
+        !(
+          typeof next.value() === "object" &&
+          (next.value() as HandlerPathEntity).token === PathToken.Branching
+        )
+      ) {
+        const branchingNode = new PathTrieNode();
+        branchingNode.setValue(__internal_branching());
+        branchingNode.addChild(childNode);
+        branchingNode.addChild(next);
+        root.replaceChild(0, branchingNode);
+        // since a new branch just got added
+        // simply stop the execution here because there is nothing else to insert
+        return;
+      }
+      if (
+        typeof next === "object" &&
+        (next.value() as HandlerPathEntity).token === PathToken.Branching
+      ) {
+        // if the next token is a branching token
+        // either find the equal child node
+        // or insert a new one
+        const branchNext = next
+          .getChildren()
+          .find((node) => node.equal(childNode));
+        if (!branchNext) {
+          next.addChild(childNode);
+          return;
+        }
+        return this.pathTrieUnion(childNode, branchNext);
+      }
+      return this.pathTrieUnion(childNode, next);
+    }
 
-  public pathConstruct(
+    // path is an Or token
+    // for now, Or tokens must be implicitly branched
+    // so it is impossible to have both "path" and "root" as Or tokens
+    // all Or tokens are treated as new paths
+    // for now
+  }
+
+  private pathConstruct(
     path: HandlerPath,
     // null value must be provided when resolving a subpath
     handler: HttpHandler | null,
@@ -116,7 +162,9 @@ export class PathTrieNode {
         return (
           typeof this._value === "object" &&
           (this._value as HandlerPathEntity).token ===
-            (other.value() as HandlerPathEntity).token
+            (other.value() as HandlerPathEntity).token &&
+          (this._value as HandlerPathEntity).data ===
+            (other.value() as HandlerPathEntity).data
         );
     }
   }
@@ -126,9 +174,9 @@ export class PathTrieNode {
   }
 
   public replaceChild(idx: number, node: PathTrieNode): PathTrieNode {
-    const current = this._value[idx];
+    const current = this._children[idx];
 
-    this._value[idx] = node;
+    this._children[idx] = node;
 
     return current;
   }
