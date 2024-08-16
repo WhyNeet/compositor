@@ -11,6 +11,13 @@ export interface PathResolverMetadata {
   method: HttpMethod;
 }
 
+export interface PathResolverOutputMetadata {
+  // a map of route param names and their values
+  params: Map<string, string>;
+  // a map of raw route strings in place of wildcards
+  paths: Map<string, string>;
+}
+
 export class PathTrie {
   private _root: PathTrieNode;
 
@@ -37,11 +44,12 @@ export class PathTrie {
   public resolvePath(
     path: RawHandlerPath,
     metadata: PathResolverMetadata,
-  ): HttpHandler | null {
+  ): [HttpHandler, PathResolverOutputMetadata | null] | null {
     const handlerNode = this.searchPath(path, this._root, metadata);
 
     if (handlerNode === null) return null;
-    return handlerNode.value() as HttpHandler;
+    const [handler, meta] = handlerNode;
+    return [handler.value() as HttpHandler, meta];
   }
 
   private searchPath(
@@ -49,28 +57,51 @@ export class PathTrie {
     root: PathTrieNode,
     metadata: PathResolverMetadata,
     current = 0,
-  ): PathTrieNode | null {
-    const switchOnObject = (): PathTrieNode | null => {
+  ): [PathTrieNode, PathResolverOutputMetadata | null] | null {
+    const switchOnObject = ():
+      | [PathTrieNode, PathResolverOutputMetadata | null]
+      | null => {
       const value = root.value() as HandlerPathEntity;
       switch (value.token) {
         case PathToken.Method:
           if (value.data !== metadata.method) return null;
-          return this.searchPath(
+          {
+            const result = this.searchPath(
+              path,
+              root.getChildren()[0],
+              metadata,
+              current,
+            );
+            if (!result) return null;
+            const [node, nextMeta] = result;
+            return node ? [node, nextMeta] : null;
+          }
+        case PathToken.Param: {
+          const result = this.searchPath(
             path,
             root.getChildren()[0],
             metadata,
-            current,
+            current + 1,
           );
-        case PathToken.Param:
-          console.warn(
-            `[warn] Path params are not implemented yet (param: "${value.data}" (value: "${path[current]}"))`,
-          );
-          return this.searchPath(
-            path,
-            root.getChildren()[0],
-            metadata,
-            current,
-          );
+          console.log("search on Param:", root);
+          if (!result) return null;
+          const [node, nextMeta] = result;
+          // if metadata has been returned from the function call
+          // update it with a new value
+          if (nextMeta)
+            nextMeta.params.set(value.data as string, path[current]);
+          return node
+            ? [
+                node,
+                // if there is metadata returned from the searchPath call, pass it
+                // otherwise, create a new one with correct data
+                nextMeta ?? {
+                  paths: new Map(),
+                  params: new Map([[value.data as string, path[current]]]),
+                },
+              ]
+            : null;
+        }
         case PathToken.Wildcard:
           // TODO: implement multi-segment wildcards (e. g. /first/**/second)
           if (value.data === true)
@@ -80,12 +111,34 @@ export class PathTrie {
               metadata,
               current + 1,
             );
-          return this.searchPath(
-            path,
-            root.getChildren()[0],
-            metadata,
-            current + 1,
-          );
+          {
+            const result = this.searchPath(
+              path,
+              root.getChildren()[0],
+              metadata,
+              current + 1,
+            );
+            if (!result) return null;
+            const [node, nextMeta] = result;
+
+            if (nextMeta)
+              if ((value.data as { name?: string }).name)
+                nextMeta.paths.set(
+                  (value.data as { name?: string }).name,
+                  path[current],
+                );
+            return node
+              ? [
+                  node,
+                  nextMeta ?? {
+                    paths: new Map(),
+                    params: (value.data as { name?: string }).name
+                      ? new Map([[value.data as string, path[current]]])
+                      : new Map(),
+                  },
+                ]
+              : null;
+          }
         case PathToken.Branching:
           return (
             root
@@ -107,7 +160,7 @@ export class PathTrie {
           current + 1,
         );
       case "function":
-        if (current === path.length) return root;
+        if (current === path.length) return [root, null];
         return null;
       case "object":
         return switchOnObject();

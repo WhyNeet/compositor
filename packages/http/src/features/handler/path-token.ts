@@ -16,8 +16,8 @@ export function param(name: string): HandlerPathEntity {
   return { token: PathToken.Param, data: name };
 }
 
-export function wildcard(double = false): HandlerPathEntity {
-  return { token: PathToken.Wildcard, data: double };
+export function wildcard(double = false, name?: string): HandlerPathEntity {
+  return { token: PathToken.Wildcard, data: { double, name } };
 }
 
 export function __internal_branching(): HandlerPathEntity {
