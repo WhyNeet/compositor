@@ -48,7 +48,22 @@ export class PathTrie {
     const handlerNode = this.searchPath(path, nextNode, metadata);
 
     if (!handlerNode) return null;
-    return handlerNode.getChildren()[0].value() as HttpHandler;
+    switch (typeof handlerNode.getChildren()[0].value()) {
+      case "function":
+        return handlerNode.getChildren()[0].value() as HttpHandler;
+      case "object":
+        switch (
+          (handlerNode.getChildren()[0].value() as HandlerPathEntity).token
+        ) {
+          case PathToken.Branching:
+            for (const node of handlerNode.getChildren()[0].getChildren())
+              if (typeof node.value() === "function")
+                return node.value() as HttpHandler;
+            return null;
+        }
+    }
+
+    return null;
   }
 
   private searchPath(
@@ -59,17 +74,12 @@ export class PathTrie {
     let current = 0;
     let currentNode = root;
 
-    while (current < path.length) {
+    while (current < path.length - 1) {
       const first = currentNode.getChildren()[0].valueAsToken();
 
       if (first && first.token === PathToken.Wildcard && first.data === true) {
         // a multi-segment wildcard
         // search for the correct next segment
-        // let nextIdx = current;
-        // const nextNode = currentNode.getChildren()[0].getChildren()[0]
-        // while (nextIdx < path.length) {
-        //   nextIdx += 1;
-        // }
       }
 
       if (
@@ -79,21 +89,20 @@ export class PathTrie {
         )
       ) {
         currentNode = currentNode.getChildren()[0];
-        current += 1;
         continue;
       }
 
       const nextNode = currentNode
         .getChildren()
-        .find((node) => node.match(path[current], metadata));
+        .find((node) => node.match(path[current + 1], metadata));
       if (!nextNode) return null;
       current += 1;
       currentNode = nextNode;
     }
 
-    if (typeof currentNode.getChildren()[0].value() === "function")
-      return currentNode;
-    return null;
+    console.log(currentNode);
+
+    return currentNode;
   }
 
   private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
