@@ -1,21 +1,15 @@
-import { HandlerPath, HandlerPathEntity } from "@compositor/core";
+import { HandlerPathEntity } from "@compositor/core";
 import { HttpMethod } from "../../types";
 
 export enum PathToken {
   Method = "METHOD",
-  Or = "OR",
   Param = "PARAM",
   Wildcard = "WILDCARD",
-  JoinPoint = "JOIN_POINT",
   Branching = "BRANCHING",
 }
 
 export function method(method: HttpMethod): HandlerPathEntity {
-  return { token: PathToken, data: method };
-}
-
-export function or(...paths: HandlerPath[]): HandlerPathEntity {
-  return { token: PathToken.Or, data: paths };
+  return { token: PathToken.Method, data: method };
 }
 
 export function param(name: string): HandlerPathEntity {
@@ -24,10 +18,6 @@ export function param(name: string): HandlerPathEntity {
 
 export function wildcard(double = false): HandlerPathEntity {
   return { token: PathToken.Wildcard, data: double };
-}
-
-export function __internal_joinPoint(): HandlerPathEntity {
-  return { token: PathToken.JoinPoint, data: null };
 }
 
 export function __internal_branching(): HandlerPathEntity {

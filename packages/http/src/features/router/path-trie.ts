@@ -4,12 +4,7 @@ import {
   RawHandlerPath,
 } from "@compositor/core";
 import { HttpMethod } from "../../types";
-import {
-  PathToken,
-  __internal_branching,
-  __internal_joinPoint,
-  or,
-} from "../handler";
+import { PathToken, __internal_branching } from "../handler";
 import { HttpHandler } from "./http-router";
 
 export interface PathResolverMetadata {
@@ -21,6 +16,7 @@ export class PathTrie {
 
   constructor() {
     const root = new PathTrieNode();
+    root.setValue(__internal_branching());
     this._root = root;
   }
 
@@ -42,74 +38,84 @@ export class PathTrie {
     path: RawHandlerPath,
     metadata: PathResolverMetadata,
   ): HttpHandler | null {
-    const nextNode = this._root
-      .getChildren()
-      .find((node) => node.match(path[0], metadata));
-    const handlerNode = this.searchPath(path, nextNode, metadata);
+    const handlerNode = this.searchPath(path, this._root, metadata);
 
-    if (!handlerNode) return null;
-    switch (typeof handlerNode.getChildren()[0].value()) {
-      case "function":
-        return handlerNode.getChildren()[0].value() as HttpHandler;
-      case "object":
-        switch (
-          (handlerNode.getChildren()[0].value() as HandlerPathEntity).token
-        ) {
-          case PathToken.Branching:
-            for (const node of handlerNode.getChildren()[0].getChildren())
-              if (typeof node.value() === "function")
-                return node.value() as HttpHandler;
-            return null;
-        }
-    }
-
-    return null;
+    if (handlerNode === null) return null;
+    return handlerNode.value() as HttpHandler;
   }
 
   private searchPath(
     path: RawHandlerPath,
     root: PathTrieNode,
     metadata: PathResolverMetadata,
+    current = 0,
   ): PathTrieNode | null {
-    let current = 0;
-    let currentNode = root;
-
-    while (current < path.length - 1) {
-      const first = currentNode.getChildren()[0].valueAsToken();
-
-      if (first && first.token === PathToken.Wildcard && first.data === true) {
-        // a multi-segment wildcard
-        // search for the correct next segment
+    const switchOnObject = (): PathTrieNode | null => {
+      const value = root.value() as HandlerPathEntity;
+      switch (value.token) {
+        case PathToken.Method:
+          if (value.data !== metadata.method) return null;
+          return this.searchPath(
+            path,
+            root.getChildren()[0],
+            metadata,
+            current,
+          );
+        case PathToken.Param:
+          console.warn(
+            `[warn] Path params are not implemented yet (param: "${value.data}" (value: "${path[current]}"))`,
+          );
+          return this.searchPath(
+            path,
+            root.getChildren()[0],
+            metadata,
+            current,
+          );
+        case PathToken.Wildcard:
+          // TODO: implement multi-segment wildcards (e. g. /first/**/second)
+          if (value.data === true)
+            return this.searchPath(
+              path,
+              root.getChildren()[0],
+              metadata,
+              current + 1,
+            );
+          return this.searchPath(
+            path,
+            root.getChildren()[0],
+            metadata,
+            current + 1,
+          );
+        case PathToken.Branching:
+          return (
+            root
+              .getChildren()
+              .map((node) => this.searchPath(path, node, metadata, current))
+              .find((node) => node !== null) ?? null
+          );
       }
+    };
 
-      if (
-        first &&
-        [PathToken.Branching, PathToken.Or, PathToken.JoinPoint].includes(
-          first.token as PathToken,
-        )
-      ) {
-        currentNode = currentNode.getChildren()[0];
-        continue;
-      }
-
-      const nextNode = currentNode
-        .getChildren()
-        .find((node) => node.match(path[current + 1], metadata));
-      if (!nextNode) return null;
-      current += 1;
-      currentNode = nextNode;
+    switch (typeof root.value()) {
+      case "string":
+        // root is a path segment
+        if (path[current] !== root.value()) return null;
+        return this.searchPath(
+          path,
+          root.getChildren()[0],
+          metadata,
+          current + 1,
+        );
+      case "function":
+        if (current === path.length) return root;
+        return null;
+      case "object":
+        return switchOnObject();
     }
-
-    console.log(currentNode);
-
-    return currentNode;
   }
 
   private pathTrieUnion(path: PathTrieNode, root: PathTrieNode) {
-    if (
-      typeof path.value() === "string" ||
-      (path.value() as HandlerPathEntity).token !== PathToken.Or
-    ) {
+    if (typeof path.value() === "string") {
       const childNode = path.getChildren()[0];
       const next = root.getChildren()[0];
       if (
@@ -129,7 +135,7 @@ export class PathTrie {
         return;
       }
       if (
-        typeof next === "object" &&
+        typeof next.value() === "object" &&
         (next.value() as HandlerPathEntity).token === PathToken.Branching
       ) {
         // if the next token is a branching token
@@ -146,12 +152,6 @@ export class PathTrie {
       }
       return this.pathTrieUnion(childNode, next);
     }
-
-    // path is an Or token
-    // for now, Or tokens must be implicitly branched
-    // so it is impossible to have both "path" and "root" as Or tokens
-    // all Or tokens are treated as new paths
-    // for now
   }
 
   private pathConstruct(
@@ -172,46 +172,12 @@ export class PathTrie {
 
     const segment = path[current];
 
-    if (
-      typeof segment === "string" ||
-      (segment as HandlerPathEntity).token !== PathToken.Or
-    ) {
-      const pathNode = new PathTrieNode();
-      pathNode.setValue(segment);
-      // string segments can only have one child node
-      const childNode = this.pathConstruct(path, handler, current + 1);
-      if (childNode) pathNode.addChild(childNode);
-      return pathNode;
-    }
-
-    // construct an Or segment
     const pathNode = new PathTrieNode();
     pathNode.setValue(segment);
-    const childSegments = (segment as ReturnType<typeof or>)
-      .data as HandlerPath[];
-    // construct child paths, treating each path as new
-    const childNodes = childSegments.map((path) =>
-      this.pathConstruct(path, null),
-    );
-    // append a JoinPoint token after all Or branches
-    const joinPoint = new PathTrieNode();
-    joinPoint.setValue(__internal_joinPoint());
-    // iterate through the array of child nodes of an Or segment
-    // append nodes to the child nodes array
-    for (const node of childNodes) {
-      if (!node) continue;
-      const finalPathNode = this.getFinalNode(node);
-      finalPathNode.addChild(joinPoint);
-      pathNode.addChild(node);
-    }
-    // append the remaining path nodes to the join point
-    joinPoint.addChild(this.pathConstruct(path, handler, current + 1));
+    // string segments can only have one child node
+    const childNode = this.pathConstruct(path, handler, current + 1);
+    if (childNode) pathNode.addChild(childNode);
     return pathNode;
-  }
-
-  private getFinalNode(node: PathTrieNode): PathTrieNode {
-    if (node.getChildren().length === 0) return node;
-    return this.getFinalNode(node.getChildren()[0]);
   }
 }
 
