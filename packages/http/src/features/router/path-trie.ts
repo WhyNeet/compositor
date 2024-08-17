@@ -83,7 +83,6 @@ export class PathTrie {
             metadata,
             current + 1,
           );
-          console.log("search on Param:", root);
           if (!result) return null;
           const [node, nextMeta] = result;
           // if metadata has been returned from the function call
@@ -103,14 +102,74 @@ export class PathTrie {
             : null;
         }
         case PathToken.Wildcard:
-          // TODO: implement multi-segment wildcards (e. g. /first/**/second)
-          if (value.data === true)
-            return this.searchPath(
-              path,
-              root.getChildren()[0],
-              metadata,
-              current + 1,
+          if ((value.data as { double: boolean }).double === true) {
+            // multi-segment wildcards (e. g. /first/**/second)
+            const nextPaths = this.searchNextPaths(root, metadata);
+            // since it is a double wildcard, it can catch all segments after it
+            // so if it has a handler afterwards, simply return that handler node
+            const handler = nextPaths.find(
+              (node) => typeof node.value() === "function",
             );
+            if (handler)
+              return [
+                handler,
+                {
+                  params: new Map(),
+                  paths: new Map([
+                    [
+                      (value.data as { name: string }).name,
+                      path.slice(current).join("/"),
+                    ],
+                  ]),
+                },
+              ];
+            const nextPathStrings = nextPaths.map(
+              (node) => node.value() as string,
+            );
+            const nextNodeAndIdx = () => {
+              let nextIdx = current;
+              while (nextIdx < path.length) {
+                const idx = nextPathStrings.indexOf(path[nextIdx]);
+                if (idx !== -1) return [nextIdx, idx];
+                nextIdx += 1;
+              }
+              return null;
+            };
+            const next = nextNodeAndIdx();
+            if (!next) return null;
+            const [nextIdx, nextNodeIdx] = next;
+            const result = this.searchPath(
+              path,
+              nextPaths[nextNodeIdx],
+              metadata,
+              nextIdx,
+            );
+            if (!result) return null;
+            const [node, nextMeta] = result;
+
+            if (nextMeta)
+              if ((value.data as { name?: string }).name)
+                nextMeta.paths.set(
+                  (value.data as { name?: string }).name,
+                  path.slice(current, nextIdx).join("/"),
+                );
+            return node
+              ? [
+                  node,
+                  nextMeta ?? {
+                    paths: new Map(),
+                    params: (value.data as { name?: string }).name
+                      ? new Map([
+                          [
+                            value.data as string,
+                            path.slice(current, nextIdx).join("/"),
+                          ],
+                        ])
+                      : new Map(),
+                  },
+                ]
+              : null;
+          }
           {
             const result = this.searchPath(
               path,
@@ -164,6 +223,31 @@ export class PathTrie {
         return null;
       case "object":
         return switchOnObject();
+    }
+  }
+
+  private searchNextPaths(
+    node: PathTrieNode,
+    metadata: PathResolverMetadata,
+  ): PathTrieNode[] {
+    switch (typeof node.value()) {
+      case "string":
+        return [node];
+      case "function":
+        return [node];
+      case "object":
+        switch (node.valueAsToken().token) {
+          case PathToken.Method:
+            node.match("", metadata);
+            return this.searchNextPaths(node.getChildren()[0], metadata);
+          case PathToken.Wildcard:
+          case PathToken.Param:
+            return this.searchNextPaths(node.getChildren()[0], metadata);
+          case PathToken.Branching:
+            return node
+              .getChildren()
+              .flatMap((n) => this.searchNextPaths(n, metadata));
+        }
     }
   }
 
