@@ -24,8 +24,11 @@ export class Router {
     );
     if (!handler) return;
     const [func, metadata] = handler;
-    (request as unknown as Record<string, unknown>)["params"] = metadata.params;
-    (request as unknown as Record<string, unknown>)["paths"] = metadata.paths;
+    if (metadata) {
+      (request as unknown as Record<string, unknown>)["params"] =
+        metadata.params;
+      (request as unknown as Record<string, unknown>)["paths"] = metadata.paths;
+    }
 
     func(request, response);
   }
