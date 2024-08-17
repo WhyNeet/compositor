@@ -3,6 +3,7 @@ import {
   AnyBeanDefinition,
   AnyBeanWrapper,
   Bean,
+  HandlerPath,
   MetadataProcessor,
   MetadataProcessorBean,
 } from "@compositor/core";
@@ -58,16 +59,20 @@ export class HandlerRegistrationAspect {
         ) as unknown[],
       }));
 
-    // for (const { handler, method, path } of handlers) {
-    //   const expressHandler = ((req: Request, res: Response) => {
-    //     const expressRequest = this.requestMapper.map(req);
-    //     const expressResponse = this.responseMapper.map(res);
+    for (const { handler, path } of handlers) {
+      const expressHandler = ((req: Request, res: Response) => {
+        const expressRequest = this.requestMapper.map(req);
+        const expressResponse = this.responseMapper.map(res);
 
-    //     handler(expressRequest, expressResponse);
-    //     this.responseMapper.mapback(expressResponse);
-    //   }).bind(this);
+        handler(expressRequest, expressResponse);
+        this.responseMapper.mapback(expressResponse);
+      }).bind(this);
 
-    //   this.router.registerHandler(method, path, expressHandler);
-    // }
+      this.router.registerHandler(
+        path[0] as HttpMethod,
+        path as HandlerPath,
+        expressHandler,
+      );
+    }
   }
 }
