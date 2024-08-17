@@ -3,20 +3,12 @@ import {
   HandlerPathEntity,
   RawHandlerPath,
 } from "@compositor/core";
-import { HttpMethod } from "../../types";
+import {
+  HttpHandler,
+  PathResolverMetadata,
+  PathResolverOutputMetadata,
+} from "../../abstracts";
 import { PathToken, __internal_branching } from "../handler";
-import { HttpHandler } from "./http-router";
-
-export interface PathResolverMetadata {
-  method: HttpMethod;
-}
-
-export interface PathResolverOutputMetadata {
-  // a map of route param names and their values
-  params: Map<string, string>;
-  // a map of raw route strings in place of wildcards
-  paths: Map<string, string>;
-}
 
 export class PathTrie {
   private _root: PathTrieNode;

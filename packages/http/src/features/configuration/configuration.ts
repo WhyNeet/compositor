@@ -7,12 +7,13 @@ import { TOKEN } from "../../constants";
 import { HandlerRegistrationAspect } from "../handler";
 import { Router } from "../router";
 import { HttpStarter } from "../startup";
-import { HttpConfigurationHolder } from "./http-configuration";
+import { HttpConfigurationHolder, Routing } from "./http-configuration";
 
 export class HttpConfiguration extends Configuration {
   constructor(
     public platform: PlatformConfiguration,
     public serverConfiguration: HttpServerConfiguration | null,
+    public routingConfiguration: Routing,
   ) {
     super();
   }
@@ -36,6 +37,7 @@ export class HttpConfiguration extends Configuration {
         token: TOKEN.CONFIGURATION,
         bean: HttpConfigurationHolder.with({
           server: this.serverConfiguration,
+          routing: this.routingConfiguration,
         }),
       })
       .register({ bean: HandlerRegistrationAspect })
@@ -46,6 +48,7 @@ export class HttpConfiguration extends Configuration {
 export class HttpConfigurationBuilder {
   private _platform: { new (): PlatformConfiguration };
   private _serverConfiguration: { new (): HttpServerConfiguration };
+  private _routing: Routing;
 
   public platform(platform: { new (): PlatformConfiguration }) {
     this._platform = platform;
@@ -57,15 +60,22 @@ export class HttpConfigurationBuilder {
     return this;
   }
 
+  public routing(routing: Routing) {
+    this._routing = routing;
+    return this;
+  }
+
   public build() {
     const platform = this._platform;
     const serverConfiguration = this._serverConfiguration;
+    const routing = this._routing;
 
     return class extends HttpConfiguration {
       constructor() {
         super(
           new platform(),
           serverConfiguration ? new serverConfiguration() : null,
+          routing,
         );
       }
     };
