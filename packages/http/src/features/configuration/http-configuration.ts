@@ -2,9 +2,9 @@ import { Bean } from "@compositor/core";
 import { HttpServerConfiguration } from "../../abstracts";
 
 export enum Routing {
-  Default = 0,
-  Simplified = 1,
-  Native = 2,
+  Default = "Default",
+  Simplified = "Simplified",
+  Native = "Native",
 }
 
 export class HttpConfigurationHolder {

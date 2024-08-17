@@ -6,6 +6,7 @@ import {
 import { TOKEN } from "../../constants";
 import { HandlerRegistrationAspect } from "../handler";
 import { Router } from "../router";
+import { RouteResolverHolder } from "../router/resolvers";
 import { HttpStarter } from "../startup";
 import { HttpConfigurationHolder, Routing } from "./http-configuration";
 
@@ -41,7 +42,8 @@ export class HttpConfiguration extends Configuration {
         }),
       })
       .register({ bean: HandlerRegistrationAspect })
-      .register({ bean: HttpStarter });
+      .register({ bean: HttpStarter })
+      .register({ bean: RouteResolverHolder });
   }
 }
 
