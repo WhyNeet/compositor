@@ -16,12 +16,13 @@ export class Router {
   }
 
   public handler(request: GenericHttpRequest, response: unknown) {
-    const handler = this.resolverHolder
-      .resolver()
-      .resolve(request.path.split("/"), {
+    const handler = this.resolverHolder.resolver().resolve(
+      request.path.split("/").filter((segment) => segment.length),
+      {
         method: request.method.toUpperCase() as HttpMethod,
-      });
-    if (!handler) console.log("No handler found for path:", request.path);
+      },
+    );
+    if (!handler) return;
     const [func, metadata] = handler;
     (request as unknown as Record<string, unknown>)["params"] = metadata.params;
     (request as unknown as Record<string, unknown>)["paths"] = metadata.paths;
