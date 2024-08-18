@@ -22,7 +22,10 @@ export class Router {
         method: request.method.toUpperCase() as HttpMethod,
       },
     );
-    if (!handler) return;
+    if (!handler)
+      throw new Error(
+        `Path "${request.method.toUpperCase()} ${request.path}" not found.`,
+      );
     const [func, metadata] = handler;
     if (metadata) {
       (request as unknown as Record<string, unknown>)["params"] =
