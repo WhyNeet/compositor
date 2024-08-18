@@ -76,11 +76,7 @@ export class HandlerRegistrationAspect {
         this.responseMapper.mapback(expressResponse);
       }).bind(this);
 
-      this.router.registerHandler(
-        path[0] as HttpMethod,
-        path as HandlerPath,
-        expressHandler,
-      );
+      this.router.registerHandler(path as HandlerPath, expressHandler);
     }
   }
 }

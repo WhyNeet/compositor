@@ -7,11 +7,7 @@ export abstract class HttpRouteResolver {
     path: RawHandlerPath,
     metadata: PathResolverMetadata,
   ): [HttpHandler, PathResolverOutputMetadata];
-  abstract addRoute(
-    path: HandlerPath,
-    handler: HttpHandler,
-    metadata: PathResolverMetadata,
-  ): void;
+  abstract addRoute(path: HandlerPath, handler: HttpHandler): void;
 }
 
 export interface PathResolverMetadata {

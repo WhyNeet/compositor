@@ -1,4 +1,8 @@
-import { HandlerPath, RawHandlerPath } from "@compositor/core";
+import {
+  HandlerPath,
+  HandlerPathEntity,
+  RawHandlerPath,
+} from "@compositor/core";
 import {
   GenericHttpRequest,
   HttpHandler,
@@ -36,17 +40,15 @@ export class SimplifiedRouteResolver implements HttpRouteResolver {
     return [handler, null];
   }
 
-  addRoute(
-    path: HandlerPath,
-    handler: HttpHandler,
-    metadata: PathResolverMetadata,
-  ): void {
-    const joined = path.join("/");
+  addRoute(path: HandlerPath, handler: HttpHandler): void {
+    // method token will always be first because all routes are optimized
+    const method = (path[0] as HandlerPathEntity).data as HttpMethod;
+    const joined = path.slice(1).join("/");
     if (this._mapping.has(joined))
       this._mapping.set(joined, [
         ...this._mapping.get(joined),
-        [metadata.method, handler],
+        [method, handler],
       ]);
-    else this._mapping.set(joined, [[metadata.method, handler]]);
+    else this._mapping.set(joined, [[method, handler]]);
   }
 }

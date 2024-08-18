@@ -5,7 +5,7 @@ import {
 } from "../../abstracts";
 import { TOKEN } from "../../constants";
 import { HandlerRegistrationAspect } from "../handler";
-import { RouteTransformer, Router } from "../router";
+import { RouteOptimizer, RouteTransformer, Router } from "../router";
 import { RouteResolverHolder } from "../router/resolvers";
 import { HttpStarter } from "../startup";
 import { HttpConfigurationHolder, Routing } from "./http-configuration";
@@ -44,7 +44,8 @@ export class HttpConfiguration extends Configuration {
       .register({ bean: HandlerRegistrationAspect })
       .register({ bean: HttpStarter })
       .register({ bean: RouteResolverHolder })
-      .register({ bean: RouteTransformer });
+      .register({ bean: RouteTransformer })
+      .register({ bean: RouteOptimizer });
   }
 }
 

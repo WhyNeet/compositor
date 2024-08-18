@@ -2,6 +2,7 @@ import { Bean, HandlerPath } from "@compositor/core";
 import { GenericHttpRequest, HttpHandler } from "../../abstracts";
 import { HttpMethod } from "../../types";
 import { RouteResolverHolder } from "./resolvers";
+import { RouteOptimizer } from "./route-optimizer";
 import { RouteTransformer } from "./route-transformer";
 
 @Bean()
@@ -9,15 +10,13 @@ export class Router {
   constructor(
     private resolverHolder: RouteResolverHolder,
     private routeTransformer: RouteTransformer,
+    private routeOptimizer: RouteOptimizer,
   ) {}
 
-  public registerHandler(
-    method: HttpMethod,
-    path: HandlerPath,
-    handler: HttpHandler,
-  ) {
+  public registerHandler(path: HandlerPath, handler: HttpHandler) {
     const preparedPath = this.routeTransformer.transform(path);
-    this.resolverHolder.resolver().addRoute(preparedPath, handler, { method });
+    const optimizedPath = this.routeOptimizer.optimize(preparedPath);
+    this.resolverHolder.resolver().addRoute(optimizedPath, handler);
   }
 
   public handler(request: GenericHttpRequest, response: unknown) {
