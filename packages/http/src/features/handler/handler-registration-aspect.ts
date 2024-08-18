@@ -42,6 +42,12 @@ export class HandlerRegistrationAspect {
       APP_METADATA_KEY.CONTROLLER_HANDLERS,
       def.getClass(),
     );
+
+    const pathPrefix = Reflect.getOwnMetadata(
+      APP_METADATA_KEY.APPLICATION_CONTROLLER,
+      def.getClass(),
+    ) as unknown[];
+
     const handlers = handlerKeys
       .map((key) => ({
         handler: wrapper.getInstance()[key] as (
@@ -52,11 +58,13 @@ export class HandlerRegistrationAspect {
       }))
       .map(({ handler, key }) => ({
         handler,
-        path: Reflect.getOwnMetadata(
-          APP_METADATA_KEY.CONTROLLER_HANDLER,
-          def.getClass(),
-          key,
-        ) as unknown[],
+        path: pathPrefix.concat(
+          Reflect.getOwnMetadata(
+            APP_METADATA_KEY.CONTROLLER_HANDLER,
+            def.getClass(),
+            key,
+          ) as unknown[],
+        ),
       }));
 
     for (const { handler, path } of handlers) {
