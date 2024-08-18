@@ -2,17 +2,22 @@ import { Bean, HandlerPath } from "@compositor/core";
 import { GenericHttpRequest, HttpHandler } from "../../abstracts";
 import { HttpMethod } from "../../types";
 import { RouteResolverHolder } from "./resolvers";
+import { RouteTransformer } from "./route-transformer";
 
 @Bean()
 export class Router {
-  constructor(private resolverHolder: RouteResolverHolder) {}
+  constructor(
+    private resolverHolder: RouteResolverHolder,
+    private routeTransformer: RouteTransformer,
+  ) {}
 
   public registerHandler(
     method: HttpMethod,
     path: HandlerPath,
     handler: HttpHandler,
   ) {
-    this.resolverHolder.resolver().addRoute(path, handler, { method });
+    const preparedPath = this.routeTransformer.transform(path);
+    this.resolverHolder.resolver().addRoute(preparedPath, handler, { method });
   }
 
   public handler(request: GenericHttpRequest, response: unknown) {
