@@ -67,16 +67,16 @@ export class HandlerRegistrationAspect {
         ),
       }));
 
-    for (const { handler, path } of handlers) {
-      const expressHandler = ((req: Request, res: Response) => {
-        const expressRequest = this.requestMapper.map(req);
-        const expressResponse = this.responseMapper.map(res);
+    for (const { handler: controllerHandler, path } of handlers) {
+      const handler = ((req: Request, res: Response) => {
+        const request = this.requestMapper.map(req);
+        const response = this.responseMapper.map(res);
 
-        handler(expressRequest, expressResponse);
-        this.responseMapper.mapback(expressResponse);
+        controllerHandler(request, response);
+        this.responseMapper.mapback(response);
       }).bind(this);
 
-      this.router.registerHandler(path as HandlerPath, expressHandler);
+      this.router.registerHandler(path as HandlerPath, handler);
     }
   }
 }
