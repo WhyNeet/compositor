@@ -1,3 +1,5 @@
+import { METADATA_KEY } from "../../constants";
+
 export function Decorator() {
   return function <
     T extends new (
@@ -7,6 +9,7 @@ export function Decorator() {
     ) => { apply(...args: unknown[]): unknown },
   >(target: T) {
     const name = target.name;
+    Reflect.defineMetadata(METADATA_KEY.DECORATOR_INDENTIFIER, name, target);
     return class extends target {
       apply(
         target: unknown,
