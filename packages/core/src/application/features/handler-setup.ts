@@ -42,7 +42,7 @@ export class HandlerSetupBean {
         args[index] = factory(request, response);
       }
 
-      handler.bind(wrapper.getInstance())(...args);
+      return handler.bind(wrapper.getInstance())(...args);
     };
   }
 
