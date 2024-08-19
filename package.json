@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
-    "biome:check": "biome check --apply .",
+    "biome:check": "biome check --write .",
     "pkg:build": "pnpm -r run build",
     "test": "jest"
   },
@@ -24,7 +24,7 @@
     "typescript": "^5.5.4"
   },
   "lint-staged": {
-    "**/*.{js,ts,tsx}": ["biome check --apply"],
-    "**/*": ["biome check --apply"]
+    "**/*.{js,ts,tsx}": ["biome check --write"],
+    "**/*": ["biome check --write"]
   }
 }
