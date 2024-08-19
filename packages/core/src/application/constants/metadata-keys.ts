@@ -9,3 +9,5 @@ export const HANDLER_MIDDLEWARE = (key: string | symbol) =>
 export const APPLICATION_ADVICE = "application:advice";
 export const ADVICE_EXCEPTION_HANDLERS =
   "application:advice:exception:handlers";
+
+export const DECORATOR_INDENTIFIER = "decorator:identifier";
