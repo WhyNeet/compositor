@@ -68,11 +68,14 @@ export class HandlerRegistrationAspect {
       }));
 
     for (const { handler: controllerHandler, path } of handlers) {
-      const handler = ((req: Request, res: Response) => {
+      const handler = (async (req: Request, res: Response) => {
         const request = this.requestMapper.map(req);
         const response = this.responseMapper.map(res);
 
-        controllerHandler(request, response);
+        const result = await controllerHandler(request, response);
+        if (typeof result === "string") response.body.text(result);
+        else if (typeof result === "object")
+          response.body.json(result as Record<string, unknown>);
         this.responseMapper.mapback(response);
       }).bind(this);
 
