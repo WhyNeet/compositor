@@ -5,5 +5,5 @@ export abstract class MethodDecorator {
     target: T,
     propertyKey: string,
     descriptor: PropertyDescriptor,
-  );
+  ): void;
 }

@@ -1,7 +1,3 @@
-import { Ctor } from "../../../ioc";
-import { METADATA_KEY } from "../../constants";
-import { ClassDecorator } from "./class-decorator";
-
 export function Decorator() {
   return function <
     T extends new (
