@@ -6,3 +6,5 @@ export * from "./create-param-decorator";
 export * from "./request";
 export * from "./response";
 export * from "./use-middleware";
+export * from "./advice";
+export * from "./exception-handler";
