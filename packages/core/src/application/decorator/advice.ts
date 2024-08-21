@@ -10,7 +10,7 @@ export function Advice(...decorators: unknown[]) {
     Reflect.defineMetadata(
       METADATA_KEY.APPLICATION_ADVICE,
       decorators.map((decorator) =>
-        Reflect.getOwnMetadata(METADATA_KEY.DECORATOR_INDENTIFIER, decorator),
+        Reflect.getOwnMetadata(METADATA_KEY.DECORATOR_IDENTIFIER, decorator),
       ),
       target,
     );

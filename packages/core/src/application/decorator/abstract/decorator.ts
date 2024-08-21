@@ -9,7 +9,7 @@ export function Decorator() {
     ) => { apply(...args: unknown[]): unknown },
   >(target: T) {
     const name = target.name;
-    Reflect.defineMetadata(METADATA_KEY.DECORATOR_INDENTIFIER, name, target);
+    Reflect.defineMetadata(METADATA_KEY.DECORATOR_IDENTIFIER, name, target);
     return class extends target {
       apply(
         target: unknown,
