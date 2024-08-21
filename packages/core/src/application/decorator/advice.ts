@@ -1,4 +1,4 @@
-import { Bean, Ctor } from "../../ioc";
+import { Bean } from "../../ioc";
 import { METADATA_KEY } from "../constants";
 
 export function Advice(...decorators: unknown[]) {

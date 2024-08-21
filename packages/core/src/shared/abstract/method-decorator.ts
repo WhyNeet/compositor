@@ -1,4 +1,4 @@
-import { Ctor } from "../../../ioc";
+import { Ctor } from "../../ioc";
 
 export abstract class MethodDecorator {
   abstract apply<T extends Ctor>(

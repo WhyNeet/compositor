@@ -1,4 +1,4 @@
-import { ClassDecorator, MethodDecorator } from "./abstract";
+import { ClassDecorator, MethodDecorator } from "../../shared";
 
 export function Apply(decorator: ClassDecorator | MethodDecorator) {
   return function (

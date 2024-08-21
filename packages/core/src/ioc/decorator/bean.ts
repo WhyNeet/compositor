@@ -1,8 +1,5 @@
 import { Apply } from "../../application";
-import {
-  ClassDecorator,
-  Decorator,
-} from "../../application/decorator/abstract";
+import { ClassDecorator, Decorator } from "../../shared";
 import { METADATA_KEY } from "../constants";
 import { Ctor } from "../types";
 
