@@ -1,6 +1,6 @@
 import { ClassDecorator, MethodDecorator } from "../../shared";
 
-export function Apply(decorator: ClassDecorator | MethodDecorator) {
+export function Apply(decorator: { new (): ClassDecorator | MethodDecorator }) {
   return function (
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
@@ -9,6 +9,6 @@ export function Apply(decorator: ClassDecorator | MethodDecorator) {
     descriptor?: PropertyDescriptor,
   ) {
     // biome-ignore lint/suspicious/noExplicitAny: prevent type errors
-    return decorator.apply(target, propertyKey, descriptor) as any;
+    return new decorator().apply(target, propertyKey, descriptor) as any;
   };
 }
