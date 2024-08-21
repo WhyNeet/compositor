@@ -1,4 +1,4 @@
-import { METADATA_KEY } from "../../application/constants";
+import { METADATA_KEY } from "./constants";
 
 export function Decorator() {
   return function <

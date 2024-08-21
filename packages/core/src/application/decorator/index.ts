@@ -8,4 +8,3 @@ export * from "./response";
 export * from "./use-middleware";
 export * from "./advice";
 export * from "./exception-handler";
-export * from "./apply";

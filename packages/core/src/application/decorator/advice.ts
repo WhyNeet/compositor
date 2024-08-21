@@ -1,5 +1,6 @@
 import { Bean } from "../../ioc";
-import { METADATA_KEY } from "../constants";
+import { METADATA_KEY } from "../../shared";
+import { METADATA_KEY as APP_METADATA_KEY } from "../constants";
 
 export function Advice(...decorators: unknown[]) {
   return function (
@@ -8,7 +9,7 @@ export function Advice(...decorators: unknown[]) {
     target: any,
   ) {
     Reflect.defineMetadata(
-      METADATA_KEY.APPLICATION_ADVICE,
+      APP_METADATA_KEY.APPLICATION_ADVICE,
       decorators.map((decorator) =>
         Reflect.getOwnMetadata(METADATA_KEY.DECORATOR_IDENTIFIER, decorator),
       ),

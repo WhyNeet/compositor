@@ -1,4 +1,4 @@
-import { Apply } from "../../application";
+import { Apply } from "../../shared";
 import { ClassDecorator, Decorator } from "../../shared";
 import { METADATA_KEY } from "../constants";
 import { Ctor } from "../types";
