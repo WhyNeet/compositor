@@ -1,12 +1,14 @@
+import { Apply } from "../../application";
+import {
+  ClassDecorator,
+  Decorator,
+} from "../../application/decorator/abstract";
 import { METADATA_KEY } from "../constants";
 import { Ctor } from "../types";
 
-export function Bean() {
-  // biome-ignore lint/complexity/useArrowFunction: stick to normal function
-  // biome-ignore lint/suspicious/noExplicitAny: any args
-  return function <T extends abstract new (...args: any) => unknown>(
-    target: T,
-  ) {
+@Decorator()
+export class BeanDecorator extends ClassDecorator {
+  apply<T extends Ctor>(target: T): void {
     const dependencies: Ctor[] =
       Reflect.getOwnMetadata(METADATA_KEY.DESIGN_PARAM_TYPES, target) ?? [];
     Reflect.defineMetadata(
@@ -16,7 +18,8 @@ export function Bean() {
     );
 
     Reflect.defineMetadata(METADATA_KEY.IOC_DEFAULT_TOKEN, target.name, target);
-
-    return target;
-  };
+  }
 }
+
+export const Bean = () => Apply(BeanDecorator);
+Bean.decorator = BeanDecorator;

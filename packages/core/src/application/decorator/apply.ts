@@ -1,14 +1,14 @@
 import { ClassDecorator, MethodDecorator } from "./abstract";
 
-export function Apply(...decorators: (ClassDecorator | MethodDecorator)[]) {
+export function Apply(decorator: ClassDecorator | MethodDecorator) {
   return function (
-    // biome-ignore lint/complexity/useArrowFunction: not using arrow function
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
+    // biome-ignore lint/complexity/useArrowFunction: not using arrow function
     propertyKey?: string,
     descriptor?: PropertyDescriptor,
   ) {
-    for (const decorator of decorators)
-      decorator.apply(target, propertyKey, descriptor);
+    // biome-ignore lint/suspicious/noExplicitAny: prevent type errors
+    return decorator.apply(target, propertyKey, descriptor) as any;
   };
 }
