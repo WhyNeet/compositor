@@ -9,8 +9,7 @@ export function Decorator() {
     ) => { apply(...args: unknown[]): unknown },
   >(target: T) {
     const name = target.name;
-    Reflect.defineMetadata(METADATA_KEY.DECORATOR_IDENTIFIER, name, target);
-    return class extends target {
+    const ctor = class extends target {
       apply(
         target: unknown,
         propertyKey?: string,
@@ -25,5 +24,9 @@ export function Decorator() {
         return target;
       }
     };
+
+    Reflect.defineMetadata(METADATA_KEY.DECORATOR_IDENTIFIER, name, ctor);
+
+    return ctor;
   };
 }

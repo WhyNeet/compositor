@@ -1,8 +1,8 @@
-import { Bean } from "../../ioc";
+import { Bean, Ctor } from "../../ioc";
 import { METADATA_KEY } from "../../shared";
 import { METADATA_KEY as APP_METADATA_KEY } from "../constants";
 
-export function Advice(...decorators: unknown[]) {
+export function Advice(...decorators: Ctor[]) {
   return function (
     // biome-ignore lint/complexity/useArrowFunction: not using arrow function
     // biome-ignore lint/suspicious/noExplicitAny: any target
