@@ -1,9 +1,10 @@
 import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../ioc";
 import { METADATA_KEY } from "../constants";
-import { MetadataProcessor, isIgnored } from "../decorator";
+import { AdviceIgnore, MetadataProcessor, isIgnored } from "../decorator";
 import { MetadataHandler, MetadataProcessorBean } from "./metadata-processor";
 
 @Bean()
+@AdviceIgnore()
 export class AdviceSetup {
   constructor(
     @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
@@ -29,8 +30,6 @@ export class AdviceSetup {
         adviceDef.getClass(),
       ) ?? [];
 
-    console.log(adviceDecorators, adviceExceptionHandlers);
-
     for (const decorator of adviceDecorators) {
       this.metadataProcessor.addHandler(decorator, (def, wrapper) => {
         // avoid infinite loop
@@ -38,14 +37,18 @@ export class AdviceSetup {
         // handle ignored beans
         if (isIgnored(def.getClass())) return;
         if (!adviceExceptionHandlers.length) return;
+        const objectKeys = Object.getOwnPropertyNames(
+          Object.getPrototypeOf(wrapper.getInstance()),
+        );
         // setup exception handlers
-        for (const key of Object.getOwnPropertyNames(wrapper.getInstance())) {
+        for (const key of objectKeys) {
+          if (key === "constructor") continue;
           const func = wrapper.getInstance()[key];
           if (typeof func !== "function") continue;
-          console.log(def.getClass().name, key);
+
           const wrappedHandler = (...args: unknown[]) => {
             try {
-              func(...args);
+              return func.bind(wrapper.getInstance())(...args);
             } catch (ex) {
               const { key: exceptionHandlerKey } = adviceExceptionHandlers.find(
                 ({ exceptions }) => !!exceptions.find((e) => ex instanceof e),

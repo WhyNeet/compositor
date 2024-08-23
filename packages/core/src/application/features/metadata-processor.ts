@@ -6,7 +6,7 @@ import {
   EventData,
 } from "../../ioc";
 import { ApplicationContext } from "../context";
-import { Context } from "../decorator";
+import { AdviceIgnore, Context } from "../decorator";
 
 export type MetadataKey = string | symbol;
 export type MetadataHandler = (
@@ -15,6 +15,7 @@ export type MetadataHandler = (
 ) => void;
 
 @Bean()
+@AdviceIgnore()
 export class MetadataProcessorBean {
   private _handlers: Map<MetadataKey, MetadataHandler[]>;
   private _events: EventData[];
@@ -58,6 +59,15 @@ export class MetadataProcessorBean {
     if (this._handlers.has(key)) this._handlers.get(key).push(handler);
     else this._handlers.set(key, [handler]);
 
-    if (replay) for (const data of this._events) this.emit(data, key);
+    if (replay)
+      for (const data of this._events) {
+        const keys: MetadataKey[] = Reflect.getOwnMetadataKeys(
+          data.payload.bean.getInstance().constructor,
+        );
+
+        if (this._handlers.has(key) && keys.includes(key))
+          for (const handler of this._handlers.get(key))
+            handler(data.payload.definition, data.payload.bean);
+      }
   }
 }
