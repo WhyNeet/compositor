@@ -1,4 +1,4 @@
-import { Bean } from "@compositor/core";
+import { AdviceIgnore, Bean } from "@compositor/core";
 import {
   GenericHttpRequest,
   HttpServer,
@@ -7,6 +7,7 @@ import {
 import express, { Express } from "express";
 
 @Bean()
+@AdviceIgnore()
 export class ServerBean implements HttpServer {
   private _app: Express;
   private _conf: HttpServerConfiguration;
