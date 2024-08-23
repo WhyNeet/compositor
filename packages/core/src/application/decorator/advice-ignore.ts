@@ -14,3 +14,6 @@ export class AdviceIgnoreDecorator implements ClassDecorator {
 
 export const AdviceIgnore = () => Apply(AdviceIgnoreDecorator);
 AdviceIgnore.decorator = AdviceIgnoreDecorator;
+
+export const isIgnored = (ctor: Ctor) =>
+  Reflect.getOwnMetadata(METADATA_KEY.APPLICATION_ADVICE_IGNORE, ctor);
