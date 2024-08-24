@@ -1,6 +1,6 @@
 import { InjectionToken } from "../injection-token";
 import { Ctor } from "../types";
-import { BeanDefinition } from "./bean-definition";
+import { AnyBeanDefinition, BeanDefinition } from "./bean-definition";
 import { BeanScope } from "./bean-scope";
 
 export class BeanWrapper<T extends Ctor> {
@@ -21,45 +21,7 @@ export class BeanWrapper<T extends Ctor> {
     this._token = definition.getToken();
     this._onInstantiate = onInstantiate;
     this._factory =
-      definition.getFactory() ??
-      (() => {
-        if (definition.isLate()) {
-          const definitionResolver = definition.getDefinitionResolver();
-          const definitions = definition
-            .getDependencies()
-            .map(definitionResolver);
-          definition.setResolvedBeanDefinitions(definitions);
-
-          const resolver = definition.getDependencyResolver();
-          const beans = definition
-            .getResolvedBeanDefinitions()
-            .map((dep) => resolver(dep));
-          definition.setResolvedBeans(beans);
-        }
-
-        // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
-        const beanInstance = Reflect.construct<any[], InstanceType<T>>(
-          definition.getClass(),
-          definition
-            .getConstructorArgs()
-            .map((token) => definition.getBeans().get(token).getInstance()),
-        );
-
-        for (const { instance, token, property } of definition
-          .getFieldDependencies()
-          .map(({ token, property }) => ({
-            instance: definition.getBeans().get(token).getInstance(),
-            token,
-            property,
-          }))) {
-          beanInstance[property] = instance;
-        }
-
-        if (definition.getPostConstructMethodKey())
-          beanInstance[definition.getPostConstructMethodKey()]();
-
-        return beanInstance;
-      });
+      definition.getFactory() ?? this.createBeanFactory(definition);
 
     if (
       !this._late &&
@@ -67,6 +29,47 @@ export class BeanWrapper<T extends Ctor> {
       !manualInstantiation
     )
       this.instantiate();
+  }
+
+  private createBeanFactory(definition: AnyBeanDefinition) {
+    return () => {
+      if (definition.isLate()) {
+        const definitionResolver = definition.getDefinitionResolver();
+        const definitions = definition
+          .getDependencies()
+          .map(definitionResolver);
+        definition.setResolvedBeanDefinitions(definitions);
+
+        const resolver = definition.getDependencyResolver();
+        const beans = definition
+          .getResolvedBeanDefinitions()
+          .map((dep) => resolver(dep));
+        definition.setResolvedBeans(beans);
+      }
+
+      // biome-ignore lint/suspicious/noExplicitAny: suppress ts error
+      const beanInstance = Reflect.construct<any[], InstanceType<T>>(
+        definition.getClass(),
+        definition
+          .getConstructorArgs()
+          .map((token) => definition.getBeans().get(token).getInstance()),
+      );
+
+      for (const { instance, token, property } of definition
+        .getFieldDependencies()
+        .map(({ token, property }) => ({
+          instance: definition.getBeans().get(token).getInstance(),
+          token,
+          property,
+        }))) {
+        beanInstance[property] = instance;
+      }
+
+      if (definition.getPostConstructMethodKey())
+        beanInstance[definition.getPostConstructMethodKey()]();
+
+      return beanInstance;
+    };
   }
 
   public getInstance(): InstanceType<T> {
