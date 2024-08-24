@@ -2,7 +2,7 @@ import { Ctor } from "../../ioc";
 import { Apply, ClassDecorator } from "../../shared";
 import { METADATA_KEY } from "../constants";
 
-export class AdviceIgnoreDecorator implements ClassDecorator {
+export class AdviceIgnoreDecorator extends ClassDecorator<[]> {
   apply<T extends Ctor>(target: T): void {
     Reflect.defineMetadata(
       METADATA_KEY.APPLICATION_ADVICE_IGNORE,

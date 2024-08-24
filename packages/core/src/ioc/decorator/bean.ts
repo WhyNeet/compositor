@@ -3,7 +3,7 @@ import { METADATA_KEY } from "../constants";
 import { Ctor } from "../types";
 
 @Decorator()
-export class BeanDecorator extends ClassDecorator {
+export class BeanDecorator extends ClassDecorator<[]> {
   apply<T extends Ctor>(target: T): void {
     const dependencies: Ctor[] =
       Reflect.getOwnMetadata(METADATA_KEY.DESIGN_PARAM_TYPES, target) ?? [];

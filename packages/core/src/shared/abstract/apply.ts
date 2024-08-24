@@ -1,6 +1,9 @@
 import { ClassDecorator, MethodDecorator } from "../../shared";
 
-export function Apply(decorator: { new (): ClassDecorator | MethodDecorator }) {
+export function Apply<T extends unknown[]>(
+  decorator: { new (args: T): ClassDecorator<T> | MethodDecorator<T> },
+  ...args: T
+) {
   return function (
     // biome-ignore lint/suspicious/noExplicitAny: any target
     target: any,
@@ -9,6 +12,6 @@ export function Apply(decorator: { new (): ClassDecorator | MethodDecorator }) {
     descriptor?: PropertyDescriptor,
   ) {
     // biome-ignore lint/suspicious/noExplicitAny: prevent type errors
-    return new decorator().apply(target, propertyKey, descriptor) as any;
+    return new decorator(args).apply(target, propertyKey, descriptor) as any;
   };
 }
