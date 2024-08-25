@@ -1,7 +1,7 @@
-import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../ioc";
-import { METADATA_KEY } from "../constants";
-import { AdviceIgnore, MetadataProcessor, isIgnored } from "../decorator";
-import { MetadataHandler, MetadataProcessorBean } from "./metadata-processor";
+import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../../ioc";
+import { METADATA_KEY } from "../../constants";
+import { AdviceIgnore, MetadataProcessor, isIgnored } from "../../decorator";
+import { MetadataHandler, MetadataProcessorBean } from "../metadata-processor";
 
 @Bean()
 @AdviceIgnore()
@@ -11,11 +11,11 @@ export class AdviceSetup {
   ) {
     this.metadataProcessor.addHandler(
       METADATA_KEY.APPLICATION_ADVICE,
-      this.setupAspect.bind(this),
+      this.setupAdvice.bind(this),
     );
   }
 
-  private setupAspect(
+  private setupAdvice(
     adviceDef: AnyBeanDefinition,
     adviceWrapper: AnyBeanWrapper,
   ) {

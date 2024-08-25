@@ -1,11 +1,9 @@
-import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../ioc";
-import { METADATA_KEY } from "../constants";
-import { ApplicationContext } from "../context";
-import { Context, MetadataProcessor, ProvisionedFactory } from "../decorator";
-import { getCtorToken } from "../util";
+import { AnyBeanDefinition, AnyBeanWrapper, Bean } from "../../../ioc";
+import { METADATA_KEY } from "../../constants";
+import { ApplicationContext } from "../../context";
+import { Context, MetadataProcessor } from "../../decorator";
+import { MetadataProcessorBean } from "../metadata-processor";
 import { HandlerSetupBean } from "./handler-setup";
-import { MetadataProcessorBean } from "./metadata-processor";
-import { Middleware } from "./middleware";
 
 @Bean()
 export class ControllerSetupAspect {
