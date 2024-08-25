@@ -27,3 +27,21 @@ export class ControllerSetupAspect {
       this.handlerSetup.setupHandler(def, wrapper, handler);
   }
 }
+
+export class ControllerExceptionWrapper {
+  constructor(
+    private _error: Error,
+    private _request: unknown,
+    private _response: unknown,
+  ) {}
+
+  public error() {
+    return this._error;
+  }
+  public request() {
+    return this._request;
+  }
+  public response() {
+    return this._response;
+  }
+}

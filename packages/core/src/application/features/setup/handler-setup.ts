@@ -4,6 +4,7 @@ import { ApplicationContext } from "../../context";
 import { Context, ProvisionedFactory } from "../../decorator";
 import { getCtorToken } from "../../util";
 import { Middleware } from "../middleware";
+import { ControllerExceptionWrapper } from "./controller-setup-aspect";
 
 export type HandlerPath = (string | HandlerPathEntity)[];
 export type HandlerPathEntity = { token: unknown; data: unknown };
@@ -32,7 +33,7 @@ export class HandlerSetupBean {
       Reflect.getOwnMetadata(propertyKey, def.getClass()) ?? [];
     const handler = wrapper.getInstance()[propertyKey];
 
-    wrapper.getInstance()[propertyKey] = (
+    wrapper.getInstance()[propertyKey] = async (
       request: unknown,
       response: unknown,
     ) => {
@@ -42,7 +43,11 @@ export class HandlerSetupBean {
         args[index] = factory(request, response);
       }
 
-      return handler.bind(wrapper.getInstance())(...args);
+      try {
+        return await handler.bind(wrapper.getInstance())(...args);
+      } catch (ex) {
+        throw new ControllerExceptionWrapper(ex, request, response);
+      }
     };
   }
 

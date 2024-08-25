@@ -10,3 +10,4 @@ export class ControllerAdviceDecorator extends ClassDecorator<[]> {
 }
 
 export const ControllerAdvice = () => Apply(ControllerAdviceDecorator);
+ControllerAdvice.decorator = ControllerAdviceDecorator;

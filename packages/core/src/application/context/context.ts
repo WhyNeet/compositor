@@ -1,8 +1,7 @@
 import { Container, Ctor, InjectionToken, RegistrationEntity } from "../../ioc";
 import { APPLICATION_TOKEN } from "../constants";
 import { ControllerSetupAspect, MetadataProcessorBean } from "../features";
-import { AdviceSetup } from "../features/advice-setup";
-import { HandlerSetupBean } from "../features/handler-setup";
+import { AdviceSetup, HandlerSetupBean } from "../features";
 
 export class ApplicationContext {
   private _container: Container;

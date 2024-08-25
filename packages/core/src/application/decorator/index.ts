@@ -9,3 +9,4 @@ export * from "./use-middleware";
 export * from "./advice";
 export * from "./exception-handler";
 export * from "./advice-ignore";
+export * from "./controller-advice";

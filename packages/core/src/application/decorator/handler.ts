@@ -1,5 +1,5 @@
 import { METADATA_KEY } from "../constants";
-import { HandlerPath } from "../features/handler-setup";
+import { HandlerPath } from "../features";
 
 export function Handler(...path: HandlerPath) {
   return function (

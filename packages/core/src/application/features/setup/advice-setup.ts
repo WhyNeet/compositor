@@ -2,6 +2,7 @@ import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../../ioc";
 import { METADATA_KEY } from "../../constants";
 import { AdviceIgnore, MetadataProcessor, isIgnored } from "../../decorator";
 import { MetadataHandler, MetadataProcessorBean } from "../metadata-processor";
+import { ControllerExceptionWrapper } from "./controller-setup-aspect";
 
 @Bean()
 @AdviceIgnore()
@@ -55,7 +56,13 @@ export class AdviceSetup {
               );
               const exceptionHandler =
                 adviceWrapper.getInstance()[exceptionHandlerKey];
-              exceptionHandler(ex);
+              if (ex instanceof ControllerExceptionWrapper)
+                return exceptionHandler(
+                  ex.error(),
+                  ex.request(),
+                  ex.response(),
+                );
+              return exceptionHandler(ex);
             }
           };
           wrapper.getInstance()[key] = wrappedHandler;
