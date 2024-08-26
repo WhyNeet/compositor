@@ -47,9 +47,9 @@ export class AdviceSetup {
           const func = wrapper.getInstance()[key];
           if (typeof func !== "function") continue;
 
-          const wrappedHandler = (...args: unknown[]) => {
+          const wrappedHandler = async (...args: unknown[]) => {
             try {
-              return func.bind(wrapper.getInstance())(...args);
+              return await func.bind(wrapper.getInstance())(...args);
             } catch (ex) {
               const { key: exceptionHandlerKey } = adviceExceptionHandlers.find(
                 ({ exceptions }) => !!exceptions.find((e) => ex instanceof e),
