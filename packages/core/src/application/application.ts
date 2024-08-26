@@ -1,13 +1,17 @@
 import { Container, Ctor } from "../ioc";
+import { EventSubscriber } from "../shared";
 import { Configuration } from "./configuration";
 import { ApplicationContext, ConfigurationContext } from "./context";
+import { ApplicationEvents } from "./features/events/application-events";
 
 export class Application {
   private _context: ApplicationContext;
+  private _events: ApplicationEvents;
 
   constructor() {
     const container = new Container();
     const context = new ApplicationContext(container);
+    this._events = new ApplicationEvents();
     this._context = context;
   }
 
@@ -15,6 +19,10 @@ export class Application {
     const context = new ConfigurationContext(this._context, this._configure);
     const conf = new configuration();
     conf.configure(context);
+  }
+
+  public events() {
+    return new EventSubscriber(this._events);
   }
 
   private _configure(cfg: { new (): Configuration }, cx: ConfigurationContext) {
