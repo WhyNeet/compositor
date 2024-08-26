@@ -76,18 +76,18 @@ export class HandlerSetupBean {
 
     const handler = wrapper.getInstance()[propertyKey];
 
-    const middlewareChain = Array(middlewareBeans.length).fill(null);
+    const middlewareChain = async (req: unknown, res: unknown) => {
+      let idx = 0;
 
-    for (let i = 0; i < middlewareChain.length - 1; i++) {
-      middlewareChain[i] = (req: unknown, res: unknown) =>
-        middlewareBeans[i].apply(req, res, middlewareChain[i + 1]);
-    }
+      const next = async (request?: unknown, response?: unknown) => {
+        const mw = middlewareBeans[idx++];
+        if (!mw) return await handler(request ?? req, response ?? res);
+        return await mw.apply(request ?? req, response ?? res, next);
+      };
 
-    middlewareChain[middlewareChain.length - 1] = (
-      req: unknown,
-      res: unknown,
-    ) => middlewareBeans.at(-1).apply(req, res, handler);
+      return await next();
+    };
 
-    wrapper.getInstance()[propertyKey] = middlewareChain[0];
+    wrapper.getInstance()[propertyKey] = middlewareChain;
   }
 }
