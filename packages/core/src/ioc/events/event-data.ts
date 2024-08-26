@@ -1,11 +1,13 @@
+import { Event } from "../../shared";
 import {
   AnyBeanDefinition,
   AnyBeanWrapper,
   BeanDefinition,
   BeanWrapper,
 } from "../bean";
-import { Ctor } from "../types";
-import { ContainerEvent, EventData, EventPayload } from "./event";
+import { ContainerEvent, EventPayload } from "./container-events";
+
+export type EventData = Event<ContainerEvent, EventPayload>;
 
 export function constructEventData(type: ContainerEvent): EventData;
 export function constructEventData(

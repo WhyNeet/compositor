@@ -1,7 +1,7 @@
 import { getCtorToken } from "../application/util";
+import { EventSubscriber } from "../shared";
 import { BeanDefinition } from "./bean/bean-definition";
 import { ContainerEvent, ContainerEvents, constructEventData } from "./events";
-import { EventSubscriber } from "./events/event-subscriber";
 import { InjectionToken } from "./injection-token";
 import { BeanDefinitionRegistry, BeanInstanceRegistry } from "./registry";
 import { Ctor } from "./types";
