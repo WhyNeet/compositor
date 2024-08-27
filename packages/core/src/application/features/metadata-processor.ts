@@ -66,8 +66,7 @@ export class MetadataProcessorBean {
         );
 
         if (this._handlers.has(key) && keys.includes(key))
-          for (const handler of this._handlers.get(key))
-            handler(data.payload.definition, data.payload.bean);
+          handler(data.payload.definition, data.payload.bean);
       }
   }
 }
