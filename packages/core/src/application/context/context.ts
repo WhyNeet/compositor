@@ -1,12 +1,14 @@
 import { Container, Ctor, InjectionToken, RegistrationEntity } from "../../ioc";
+import { Application } from "../application";
 import { APPLICATION_TOKEN } from "../constants";
 import { ControllerSetupAspect, MetadataProcessorBean } from "../features";
-import { AdviceSetup, HandlerSetupBean } from "../features";
+import { HandlerSetupBean } from "../features";
 
 export class ApplicationContext {
   private _container: Container;
+  private _application: Application;
 
-  constructor(container: Container) {
+  constructor(container: Container, application: Application) {
     this._container = container;
     this.register({
       token: APPLICATION_TOKEN.APPLICATION_CONTEXT,
@@ -21,7 +23,7 @@ export class ApplicationContext {
       bean: ControllerSetupAspect,
     });
     this.register({ bean: HandlerSetupBean });
-    this.register({ bean: AdviceSetup });
+    this._application = application;
   }
 
   public containerEvents() {
@@ -34,6 +36,14 @@ export class ApplicationContext {
 
   public getBean<T>(token: InjectionToken): T {
     return this._container.getBean(token);
+  }
+
+  public applicationEvents() {
+    return this._application.events();
+  }
+
+  public wire() {
+    this._container.wire();
   }
 
   public bootstrap() {

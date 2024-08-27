@@ -9,7 +9,7 @@ export class Application {
 
   constructor() {
     const container = new Container();
-    const context = new ApplicationContext(container);
+    const context = new ApplicationContext(container, this);
     this._events = new ApplicationEvents();
     this._context = context;
   }
