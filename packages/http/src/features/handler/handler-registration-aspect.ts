@@ -2,7 +2,12 @@ import {
   APP_METADATA_KEY,
   AnyBeanDefinition,
   AnyBeanWrapper,
+  Application,
+  ApplicationContext,
+  ApplicationEvent,
   Bean,
+  ContainerEvent,
+  Context,
   HandlerPath,
   MetadataProcessor,
   MetadataProcessorBean,
@@ -30,10 +35,16 @@ export class HandlerRegistrationAspect {
     private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
     @ResponseMapper()
     private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
+    @Context() cx: ApplicationContext,
   ) {
-    metadataProcessor.addHandler(
-      APP_METADATA_KEY.APPLICATION_CONTROLLER,
-      this.registerHandlers.bind(this),
+    cx.applicationEvents().subscribe(
+      ApplicationEvent.HandlersPreparationFinished,
+      () => {
+        metadataProcessor.addHandler(
+          APP_METADATA_KEY.APPLICATION_CONTROLLER,
+          this.registerHandlers.bind(this),
+        );
+      },
     );
   }
 
