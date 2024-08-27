@@ -1,6 +1,13 @@
 import { AnyBeanDefinition, AnyBeanWrapper, Bean, Ctor } from "../../../ioc";
 import { METADATA_KEY } from "../../constants";
-import { AdviceIgnore, MetadataProcessor, isIgnored } from "../../decorator";
+import { ApplicationContext } from "../../context";
+import {
+  AdviceIgnore,
+  Context,
+  MetadataProcessor,
+  isIgnored,
+} from "../../decorator";
+import { ApplicationEvent } from "../events/event-data";
 import { MetadataHandler, MetadataProcessorBean } from "../metadata-processor";
 import { ControllerExceptionWrapper } from "./controller-setup-aspect";
 
@@ -9,11 +16,16 @@ import { ControllerExceptionWrapper } from "./controller-setup-aspect";
 export class AdviceSetup {
   constructor(
     @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
+    @Context() cx: ApplicationContext,
   ) {
     this.metadataProcessor.addHandler(
       METADATA_KEY.APPLICATION_ADVICE,
       this.setupAdvice.bind(this),
     );
+    cx.applicationEvents().emit({
+      type: ApplicationEvent.HandlersPreparationFinished,
+      payload: {},
+    });
   }
 
   private setupAdvice(
@@ -50,17 +62,21 @@ export class AdviceSetup {
           const wrappedHandler = async (...args: unknown[]) => {
             try {
               return await func.bind(wrapper.getInstance())(...args);
-            } catch (ex) {
+            } catch (exception) {
+              const ex =
+                exception instanceof ControllerExceptionWrapper
+                  ? exception.error()
+                  : exception;
               const { key: exceptionHandlerKey } = adviceExceptionHandlers.find(
                 ({ exceptions }) => !!exceptions.find((e) => ex instanceof e),
               );
               const exceptionHandler =
                 adviceWrapper.getInstance()[exceptionHandlerKey];
-              if (ex instanceof ControllerExceptionWrapper)
+              if (exception instanceof ControllerExceptionWrapper)
                 return exceptionHandler(
-                  ex.error(),
-                  ex.request(),
-                  ex.response(),
+                  exception.error(),
+                  exception.request(),
+                  exception.response(),
                 );
               return exceptionHandler(ex);
             }

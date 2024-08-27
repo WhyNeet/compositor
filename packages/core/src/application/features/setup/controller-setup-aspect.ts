@@ -1,21 +1,33 @@
-import { AnyBeanDefinition, AnyBeanWrapper, Bean } from "../../../ioc";
+import {
+  AnyBeanDefinition,
+  AnyBeanWrapper,
+  Bean,
+  ContainerEvent,
+} from "../../../ioc";
 import { METADATA_KEY } from "../../constants";
 import { ApplicationContext } from "../../context";
 import { Context, MetadataProcessor } from "../../decorator";
 import { MetadataProcessorBean } from "../metadata-processor";
+import { AdviceSetup } from "./advice-setup";
 import { HandlerSetupBean } from "./handler-setup";
 
 @Bean()
 export class ControllerSetupAspect {
   constructor(
     @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
-    @Context() private context: ApplicationContext,
+    @Context() context: ApplicationContext,
     private handlerSetup: HandlerSetupBean,
   ) {
     this.metadataProcessor.addHandler(
       METADATA_KEY.APPLICATION_CONTROLLER,
       this.setupController.bind(this),
     );
+    context
+      .containerEvents()
+      .subscribe(ContainerEvent.CONTAINER_BOOTSTRAPPED, () => {
+        context.register({ bean: AdviceSetup });
+        context.wire();
+      });
   }
 
   private setupController(def: AnyBeanDefinition, wrapper: AnyBeanWrapper) {
