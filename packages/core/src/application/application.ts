@@ -1,5 +1,4 @@
-import { Container, Ctor } from "../ioc";
-import { EventSubscriber } from "../shared";
+import { Container } from "../ioc";
 import { Configuration } from "./configuration";
 import { ApplicationContext, ConfigurationContext } from "./context";
 import { ApplicationEvents } from "./features/events/application-events";
@@ -22,7 +21,7 @@ export class Application {
   }
 
   public events() {
-    return new EventSubscriber(this._events);
+    return this._events;
   }
 
   private _configure(cfg: { new (): Configuration }, cx: ConfigurationContext) {
