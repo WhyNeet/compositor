@@ -1,8 +1,19 @@
-import { Bean, HandlerPath } from "@compositor/core";
+import {
+  ApplicationContext,
+  Bean,
+  Context,
+  HandlerPath,
+  getCtorToken,
+} from "@compositor/core";
 import { GenericHttpRequest, HttpHandler, HttpMapper } from "../../abstracts";
-import { RequestMapper, ResponseMapper } from "../../decorators";
+import {
+  HttpConfiguration,
+  RequestMapper,
+  ResponseMapper,
+} from "../../decorators";
 import { DefaultHttpRequest, DefaultHttpResponse } from "../../impl";
 import { HttpMethod } from "../../types";
+import { HttpConfigurationHolder } from "../configuration";
 import { RouteResolverHolder } from "./resolvers";
 import { RouteOptimizer } from "./route-optimizer";
 import { RouteTransformer } from "./route-transformer";
@@ -23,12 +34,12 @@ export class Router {
     private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
     @ResponseMapper()
     private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
+    @HttpConfiguration() configuration: HttpConfigurationHolder,
+    @Context() cx: ApplicationContext,
   ) {
-    this._additionalMappers = [];
-  }
-
-  public registerAdditionalMapper(mapper: AdditionalRequestMapper) {
-    this._additionalMappers.push(mapper);
+    this._additionalMappers = configuration.mappers
+      .map(getCtorToken)
+      .map(cx.getBean.bind(cx)) as AdditionalRequestMapper[];
   }
 
   public registerHandler(path: HandlerPath, handler: HttpHandler) {

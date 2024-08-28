@@ -54,6 +54,8 @@ export class HttpConfiguration extends Configuration {
       .register({ bean: RouteResolverHolder })
       .register({ bean: RouteTransformer })
       .register({ bean: RouteOptimizer });
+
+    for (const mapper of this.mappers) cx.register({ bean: mapper });
   }
 }
 
