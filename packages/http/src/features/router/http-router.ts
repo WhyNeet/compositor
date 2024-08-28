@@ -1,9 +1,16 @@
 import { Bean, HandlerPath } from "@compositor/core";
-import { GenericHttpRequest, HttpHandler } from "../../abstracts";
+import { GenericHttpRequest, HttpHandler, HttpMapper } from "../../abstracts";
+import { RequestMapper, ResponseMapper } from "../../decorators";
+import { DefaultHttpRequest, DefaultHttpResponse } from "../../impl";
 import { HttpMethod } from "../../types";
 import { RouteResolverHolder } from "./resolvers";
 import { RouteOptimizer } from "./route-optimizer";
 import { RouteTransformer } from "./route-transformer";
+
+export type AdditionalRequestMapper = (
+  req: DefaultHttpRequest,
+  res: DefaultHttpResponse,
+) => void;
 
 @Bean()
 export class Router {
@@ -11,6 +18,10 @@ export class Router {
     private resolverHolder: RouteResolverHolder,
     private routeTransformer: RouteTransformer,
     private routeOptimizer: RouteOptimizer,
+    @RequestMapper()
+    private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
+    @ResponseMapper()
+    private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
   ) {}
 
   public registerHandler(path: HandlerPath, handler: HttpHandler) {
@@ -19,7 +30,7 @@ export class Router {
     this.resolverHolder.resolver().addRoute(optimizedPath, handler);
   }
 
-  public handler(request: GenericHttpRequest, response: unknown) {
+  public async handler(request: GenericHttpRequest, response: unknown) {
     const handler = this.resolverHolder.resolver().resolve(
       request.path.split("/").filter((segment) => segment.length),
       {
@@ -37,6 +48,11 @@ export class Router {
       (request as unknown as Record<string, unknown>)["paths"] = metadata.paths;
     }
 
-    func(request, response);
+    const mappedRequest = this.requestMapper.map(request);
+    const mappedResponse = this.responseMapper.map(response);
+
+    await func(mappedRequest, mappedResponse);
+
+    this.responseMapper.mapback(mappedResponse);
   }
 }

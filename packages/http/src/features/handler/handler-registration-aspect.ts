@@ -29,12 +29,8 @@ import { Router } from "../router";
 @Bean()
 export class HandlerRegistrationAspect {
   constructor(
-    @MetadataProcessor() private metadataProcessor: MetadataProcessorBean,
+    @MetadataProcessor() metadataProcessor: MetadataProcessorBean,
     @HttpRouter() private router: Router,
-    @RequestMapper()
-    private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
-    @ResponseMapper()
-    private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
     @Context() cx: ApplicationContext,
   ) {
     cx.applicationEvents().subscribe(
@@ -79,16 +75,15 @@ export class HandlerRegistrationAspect {
       }));
 
     for (const { handler: controllerHandler, path } of handlers) {
-      const handler = (async (req: Request, res: Response) => {
-        const request = this.requestMapper.map(req);
-        const response = this.responseMapper.map(res);
-
+      const handler = async (
+        request: DefaultHttpRequest,
+        response: DefaultHttpResponse,
+      ) => {
         const result = await controllerHandler(request, response);
         if (typeof result === "string") response.body.text(result);
         else if (typeof result === "object")
           response.body.json(result as Record<string, unknown>);
-        this.responseMapper.mapback(response);
-      }).bind(this);
+      };
 
       this.router.registerHandler(path as HandlerPath, handler);
     }
