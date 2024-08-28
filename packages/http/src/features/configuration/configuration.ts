@@ -5,7 +5,12 @@ import {
 } from "../../abstracts";
 import { TOKEN } from "../../constants";
 import { HandlerRegistrationAspect } from "../handler";
-import { RouteOptimizer, RouteTransformer, Router } from "../router";
+import {
+  AdditionalRequestMapper,
+  RouteOptimizer,
+  RouteTransformer,
+  Router,
+} from "../router";
 import { RouteResolverHolder } from "../router/resolvers";
 import { HttpStarter } from "../startup";
 import { HttpConfigurationHolder, Routing } from "./http-configuration";
@@ -15,6 +20,8 @@ export class HttpConfiguration extends Configuration {
     public platform: PlatformConfiguration,
     public serverConfiguration: HttpServerConfiguration | null,
     public routingConfiguration: Routing,
+    // biome-ignore lint/suspicious/noExplicitAny:
+    public mappers: { new (...args: any[]): AdditionalRequestMapper }[] | null,
   ) {
     super();
   }
@@ -39,6 +46,7 @@ export class HttpConfiguration extends Configuration {
         bean: HttpConfigurationHolder.with({
           server: this.serverConfiguration,
           routing: this.routingConfiguration,
+          mappers: this.mappers,
         }),
       })
       .register({ bean: HandlerRegistrationAspect })
@@ -53,6 +61,8 @@ export class HttpConfigurationBuilder {
   private _platform: { new (): PlatformConfiguration };
   private _serverConfiguration: { new (): HttpServerConfiguration };
   private _routing: Routing;
+  // biome-ignore lint/suspicious/noExplicitAny:
+  private _mappers: { new (...args: any[]): AdditionalRequestMapper }[];
 
   public platform(platform: { new (): PlatformConfiguration }) {
     this._platform = platform;
@@ -69,10 +79,16 @@ export class HttpConfigurationBuilder {
     return this;
   }
 
+  public mappers(mappers: typeof this._mappers) {
+    this._mappers = mappers;
+    return this;
+  }
+
   public build() {
     const platform = this._platform;
     const serverConfiguration = this._serverConfiguration;
     const routing = this._routing;
+    const mappers = this._mappers;
 
     return class extends HttpConfiguration {
       constructor() {
@@ -80,6 +96,7 @@ export class HttpConfigurationBuilder {
           new platform(),
           serverConfiguration ? new serverConfiguration() : null,
           routing,
+          mappers ?? null,
         );
       }
     };
