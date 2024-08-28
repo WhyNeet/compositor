@@ -14,6 +14,8 @@ export type AdditionalRequestMapper = (
 
 @Bean()
 export class Router {
+  private _additionalMappers: AdditionalRequestMapper[];
+
   constructor(
     private resolverHolder: RouteResolverHolder,
     private routeTransformer: RouteTransformer,
@@ -22,7 +24,13 @@ export class Router {
     private requestMapper: HttpMapper<unknown, DefaultHttpRequest>,
     @ResponseMapper()
     private responseMapper: HttpMapper<unknown, DefaultHttpResponse>,
-  ) {}
+  ) {
+    this._additionalMappers = [];
+  }
+
+  public registerAdditionalMapper(mapper: AdditionalRequestMapper) {
+    this._additionalMappers.push(mapper);
+  }
 
   public registerHandler(path: HandlerPath, handler: HttpHandler) {
     const preparedPath = this.routeTransformer.transform(path);
@@ -50,6 +58,9 @@ export class Router {
 
     const mappedRequest = this.requestMapper.map(request);
     const mappedResponse = this.responseMapper.map(response);
+
+    for (const mapper of this._additionalMappers)
+      mapper(mappedRequest, mappedResponse);
 
     await func(mappedRequest, mappedResponse);
 
