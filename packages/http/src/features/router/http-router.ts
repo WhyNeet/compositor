@@ -7,10 +7,9 @@ import { RouteResolverHolder } from "./resolvers";
 import { RouteOptimizer } from "./route-optimizer";
 import { RouteTransformer } from "./route-transformer";
 
-export type AdditionalRequestMapper = (
-  req: DefaultHttpRequest,
-  res: DefaultHttpResponse,
-) => void;
+export interface AdditionalRequestMapper {
+  map(req: DefaultHttpRequest, res: DefaultHttpResponse): void;
+}
 
 @Bean()
 export class Router {
@@ -60,7 +59,7 @@ export class Router {
     const mappedResponse = this.responseMapper.map(response);
 
     for (const mapper of this._additionalMappers)
-      mapper(mappedRequest, mappedResponse);
+      mapper.map(mappedRequest, mappedResponse);
 
     await func(mappedRequest, mappedResponse);
 
