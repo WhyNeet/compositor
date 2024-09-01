@@ -61,7 +61,7 @@ export class HttpConfiguration extends Configuration {
 
 export class HttpConfigurationBuilder {
   private _platform: { new (): PlatformConfiguration };
-  private _serverConfiguration: { new (): HttpServerConfiguration };
+  private _serverConfiguration: HttpServerConfiguration;
   private _routing: Routing;
   // biome-ignore lint/suspicious/noExplicitAny:
   private _mappers: { new (...args: any[]): AdditionalRequestMapper }[];
@@ -71,7 +71,7 @@ export class HttpConfigurationBuilder {
     return this;
   }
 
-  public serverOptions(conf: { new (): HttpServerConfiguration }) {
+  public serverOptions(conf: HttpServerConfiguration) {
     this._serverConfiguration = conf;
     return this;
   }
@@ -96,7 +96,7 @@ export class HttpConfigurationBuilder {
       constructor() {
         super(
           new platform(),
-          serverConfiguration ? new serverConfiguration() : null,
+          serverConfiguration ?? null,
           routing,
           mappers ?? null,
         );
