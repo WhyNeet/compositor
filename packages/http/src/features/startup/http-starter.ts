@@ -30,6 +30,7 @@ export class HttpStarter {
         launchCallback: () =>
           console.log("express server running on: http://127.0.0.1:8080"),
         port: 8080,
+        middlewares: [],
       },
     );
 

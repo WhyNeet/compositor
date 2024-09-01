@@ -16,4 +16,5 @@ export interface HttpServerConfiguration {
   port: number;
   baseUrl: string;
   launchCallback: () => void;
+  middlewares: ((req: unknown, res: unknown, next: unknown) => void)[];
 }
