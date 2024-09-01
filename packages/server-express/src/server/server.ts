@@ -18,6 +18,12 @@ export class ServerBean implements HttpServer {
 
   configure(configuration: HttpServerConfiguration): void {
     this._conf = configuration;
+
+    this.setupMiddleware();
+  }
+
+  private setupMiddleware() {
+    for (const mw of this._conf.middlewares) this._app.use(mw);
   }
 
   mount(
