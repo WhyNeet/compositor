@@ -12,7 +12,7 @@ export class ApplicationContext {
     this._container = container;
     this.register({
       token: APPLICATION_TOKEN.APPLICATION_CONTEXT,
-      factory: () => this,
+      factory: () => new ApplicationContextWrapper(this),
     });
     this.register({
       token: APPLICATION_TOKEN.METADATA_PROCESSOR,
@@ -48,5 +48,29 @@ export class ApplicationContext {
 
   public bootstrap() {
     this._container.bootstrap();
+  }
+}
+
+export class ApplicationContextWrapper {
+  constructor(private _cx: ApplicationContext) {}
+
+  public containerEvents() {
+    return this._cx.containerEvents();
+  }
+
+  public register<Bean extends Ctor>(entity: RegistrationEntity<Bean>) {
+    this._cx.register(entity);
+  }
+
+  public getBean<T>(token: InjectionToken): T {
+    return this._cx.getBean(token);
+  }
+
+  public applicationEvents() {
+    return this._cx.applicationEvents();
+  }
+
+  public wire() {
+    this._cx.wire();
   }
 }
